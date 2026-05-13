@@ -218,7 +218,7 @@ export default function OnboardingPage() {
             <ProgressDots current={step} total={TOTAL_STEPS} />
 
             {/* Step content with animation */}
-            <div className="flex-1 relative overflow-hidden">
+            <div className="flex-1 relative overflow-hidden min-h-0">
                 <AnimatePresence mode="wait" custom={direction}>
                     <motion.div
                         key={step}
@@ -228,7 +228,7 @@ export default function OnboardingPage() {
                         animate="center"
                         exit="exit"
                         transition={stepTransition}
-                        className="absolute inset-0"
+                        className="w-full"
                     >
                         {/* ── STEP 1: Mode Selection ── */}
                         {step === 0 && (

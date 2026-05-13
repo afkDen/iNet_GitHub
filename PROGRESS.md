@@ -7,7 +7,7 @@
 ## LAST UPDATED
 _Update this timestamp every time you check something off._
 ```
-Last update: 2026-05-14 03:32 PHT
+Last update: 2026-05-14 03:45 PHT
 Updated by:  Den
 ```
 
@@ -138,6 +138,9 @@ Updated by:  Den
 - app/page.tsx now redirects to /onboarding
 - Activities tile deprecated per user feedback — 3 tiles (Food & Drinks, Explore, Full Day) in 2x2 grid
 - All 9 Phase A tasks marked ✅
+- FIX: Changed motion.div from absolute inset-0 to w-full — tiles now render visibly in normal document flow
+- Verified: tiles, text input, Surprise Me, Next button, progress dots all render correctly
+- Verified: POST /api/session 200 — session creation works end-to-end
 ```
 
 ---
