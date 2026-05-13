@@ -1,37 +1,21 @@
 # DESIGN DOCUMENT
-## Aya — AI-Integrated Group Dining Decision App
-**Version:** 1.0 (Hackathon Build)
-**Last Updated:** Hackathon Day
+## Aya — Mobile-First AI-Integrated Web Application
+### Team iNet | SIKAPTala 2026 | Built with Roocode + NVIDIA NIM
 
 ---
 
-## 1. SYSTEM ARCHITECTURE OVERVIEW
+## 1. DESIGN PHILOSOPHY
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                        CLIENT (Browser)                      │
-│  Next.js 14 App Router · TypeScript · Tailwind · Framer     │
-│                                                             │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────┐  │
-│  │  Kwentuhan   │  │  Swipe Deck  │  │  Group Lobby &   │  │
-│  │  Onboarding  │  │  (Hain)      │  │  Reveal Screen   │  │
-│  └──────────────┘  └──────────────┘  └──────────────────┘  │
-└───────────────────────────┬─────────────────────────────────┘
-                            │ HTTP / WebSocket
-          ┌─────────────────┼─────────────────┐
-          │                 │                 │
-  ┌───────▼──────┐  ┌───────▼──────┐  ┌──────▼───────────┐
-  │  Next.js     │  │   Supabase   │  │   NVIDIA NIM     │
-  │  API Routes  │  │   Realtime   │  │   (Gemma4 31b)   │
-  │  /api/ai     │  │   WebSocket  │  │   Vibe Engine    │
-  │  /api/match  │  │   Channels   │  │                  │
-  └───────┬──────┘  └───────┬──────┘  └──────────────────┘
-          │                 │
-  ┌───────▼─────────────────▼────────────────────────────┐
-  │              Supabase (PostgreSQL)                    │
-  │  sessions · participants · swipes · establishments   │
-  └──────────────────────────────────────────────────────┘
-```
+Three principles that directly respond to the problem space:
+
+**1. Reduce, Don't Present**
+Every screen gives the user fewer decisions than they walked in with. No information architecture that adds cognitive load. Every tap eliminates options, never creates them.
+
+**2. Filipino-First Language and Tone**
+Labels, microcopy, and UX writing are in Filipino vernacular first. The app should feel like it was built *by* Filipinos *for* Filipinos — not a Western app with Tagalog sprinkled in. Budget tiers say "Grabe Tipid" not "Budget." Skip says "Presto" not "Pass."
+
+**3. One Hand, One Thumb**
+All primary interactions are reachable by a right thumb on a 375px screen. No two-handed gestures for core flows. Cards live in the middle two-thirds of the viewport. Bottom nav is always within thumb reach.
 
 ---
 
@@ -123,202 +107,74 @@ aya/
 └── package.json
 ```
 
----
+### 2.2 Typography
 
-## 3. DATABASE SCHEMA
+```css
+/* Import in globals.css */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');
 
-### 3.1 Full SQL (Supabase)
+--font-display: 'Plus Jakarta Sans', sans-serif;  /* headings, card titles, mode labels */
+--font-body:    'Inter', sans-serif;               /* body, labels, descriptions */
+--font-mono:    'DM Mono', monospace;              /* session codes only */
 
-```sql
--- ============================================================
--- ESTABLISHMENTS (seeded mock data — no Google Places API)
--- ============================================================
-create table public.establishments (
-  id           uuid primary key default gen_random_uuid(),
-  name         text not null,
-  category     text not null,               -- 'restaurant' | 'cafe' | 'activity' | 'bar'
-  address      text not null,
-  barangay     text,
-  city         text default 'Manila',
-  lat          float,
-  lng          float,
-  cost_min     int,                          -- PHP per head
-  cost_max     int,
-  is_open      boolean default true,
-  opens_at     time default '08:00',
-  closes_at    time default '22:00',
-  vibe_tags    text[] default '{}',          -- AI-generated or seeded
-  photo_url    text,
-  is_community_pin boolean default false,
-  is_deal      boolean default false,
-  deal_text    text,
-  community_confirms int default 0,
-  created_at   timestamptz default now()
-);
-
--- ============================================================
--- SESSIONS
--- ============================================================
-create table public.sessions (
-  id           uuid primary key default gen_random_uuid(),
-  code         text unique not null,         -- e.g. 'AYA-4820'
-  mode         text not null default 'solo', -- 'solo' | 'barkada' | 'lakbay'
-  status       text not null default 'active', -- 'active' | 'matched' | 'expired'
-  context      jsonb,                        -- { budget, vibe, group_size, distance, time }
-  matched_id   uuid references public.establishments(id),
-  card_stack   uuid[],                       -- ordered list of establishment IDs for this session
-  created_at   timestamptz default now(),
-  expires_at   timestamptz default now() + interval '2 hours'
-);
-
--- ============================================================
--- PARTICIPANTS (one per device in barkada mode)
--- ============================================================
-create table public.participants (
-  id           uuid primary key default gen_random_uuid(),
-  session_id   uuid references public.sessions(id) on delete cascade,
-  nickname     text default 'Anonymous',
-  status       text default 'swiping',       -- 'joined' | 'swiping' | 'done'
-  created_at   timestamptz default now()
-);
-
--- ============================================================
--- SWIPES (individual swipe events)
--- ============================================================
-create table public.swipes (
-  id               uuid primary key default gen_random_uuid(),
-  session_id       uuid references public.sessions(id) on delete cascade,
-  participant_id   uuid references public.participants(id) on delete cascade,
-  establishment_id uuid references public.establishments(id),
-  direction        text not null,            -- 'left' | 'right'
-  speed_ms         int,                      -- milliseconds from card appear to swipe
-  drag_distance    float,                    -- for Aya Decides behavioral scoring
-  created_at       timestamptz default now()
-);
-
--- ============================================================
--- ENABLE REALTIME
--- ============================================================
-alter publication supabase_realtime add table public.sessions;
-alter publication supabase_realtime add table public.participants;
-alter publication supabase_realtime add table public.swipes;
-
--- ============================================================
--- ROW LEVEL SECURITY (permissive for hackathon)
--- ============================================================
-alter table public.establishments enable row level security;
-alter table public.sessions enable row level security;
-alter table public.participants enable row level security;
-alter table public.swipes enable row level security;
-
-create policy "public read establishments" on public.establishments for select using (true);
-create policy "public read sessions" on public.sessions for select using (true);
-create policy "public insert sessions" on public.sessions for insert with check (true);
-create policy "public update sessions" on public.sessions for update using (true);
-create policy "public read participants" on public.participants for select using (true);
-create policy "public insert participants" on public.participants for insert with check (true);
-create policy "public update participants" on public.participants for update using (true);
-create policy "public insert swipes" on public.swipes for insert with check (true);
-create policy "public read swipes" on public.swipes for select using (true);
+/* Scale */
+--text-xs:      0.6875rem;  /* 11px */
+--text-sm:      0.8125rem;  /* 13px */
+--text-base:    0.9375rem;  /* 15px */
+--text-lg:      1.0625rem;  /* 17px */
+--text-xl:      1.25rem;    /* 20px */
+--text-2xl:     1.5rem;     /* 24px */
+--text-3xl:     1.875rem;   /* 30px */
+--text-display: 2.25rem;    /* 36px */
 ```
 
-### 3.2 Seed Data Shape
+### 2.3 Spacing (8pt Grid)
 
-The `establishments` table will be seeded with **30–40 mock spots** that represent real-feeling Manila/NCR venues. Each has:
+```css
+--space-1:  4px;   --space-2:  8px;   --space-3:  12px;
+--space-4:  16px;  --space-5:  20px;  --space-6:  24px;
+--space-8:  32px;  --space-10: 40px;  --space-12: 48px;
+--space-16: 64px;
+```
 
-- Realistic Filipino names (Ate Nena's Kitchen, Florinda's Panciteria, etc.)
-- Pre-generated vibe tags (AI can also re-generate these live)
-- Placeholder photo URLs (use Unsplash-style URLs or `/images/venue-N.jpg`)
-- Geo coordinates within Metro Manila
-- Mix of categories: carinderia, cafe, bar, activity, restaurant
+### 2.4 Border Radius
+
+```css
+--radius-sm:   8px;     /* tags, chips */
+--radius-md:   12px;    /* buttons, inputs */
+--radius-lg:   20px;    /* cards, modals */
+--radius-xl:   28px;    /* bottom sheets */
+--radius-full: 9999px;  /* pill badges */
+```
+
+### 2.5 Shadows
+
+```css
+--shadow-card:        0 2px 12px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05);
+--shadow-card-lifted: 0 8px 24px rgba(0,0,0,0.12);
+--shadow-modal:       0 20px 60px rgba(0,0,0,0.15);
+--shadow-swipe-right: 0 0 40px rgba(45,122,79,0.35);
+--shadow-swipe-left:  0 0 40px rgba(192,57,43,0.35);
+```
 
 ---
 
-## 4. COMPONENT DESIGN
+## 3. COMPONENT LIBRARY
 
-### 4.1 SwipeCard
+### 3.1 VenueCard
 
-```
-┌─────────────────────────────────┐
-│  [DEAL]              [COMMUNITY]│  ← badge row (conditional)
-│                                 │
-│         VENUE PHOTO             │  ← full-bleed, aspect-video
-│      (placeholder / URL)        │
-│                                 │
-├─────────────────────────────────┤
-│ GARENDERIA · QC                 │  ← category · city
-│ Ate Nena's Kitchen              │  ← name (large, bold)
-│                                 │
-│ 📍 0.4 km  ~₱120/head  🟢 Open │  ← meta row
-│                                 │
-│ [budget-friendly] [family] ...  │  ← VibeBadge pills
-│                                 │
-│ "47 locals confirmed · Unli     │  ← community note (if pin)
-│  rice until 3PM today"          │
-│                                 │
-│   [✕]     [↩]     [✓]          │  ← action buttons
-│  left    undo    right          │
-│                                 │
-│    Card 4 of 18 · Solo Mode     │  ← footer
-└─────────────────────────────────┘
-```
+> Uses a single `venue: Venue` prop rather than flat fields — stays in sync with the Venue type automatically.
 
-**Framer Motion behavior:**
-- Drag on x-axis → card rotates slightly
-- x > threshold (100px) → right swipe, green glow overlay
-- x < -threshold → left swipe, red glow overlay
-- Release beyond threshold → animates off screen, next card rises
-- `useAnimation` controls the programmatic swipe for button presses
+```typescript
+interface VenueCardProps {
+  venue: Venue               // all display data from the shared Venue type
+  stackPosition: 0 | 1 | 2  // affects scale + opacity in stack
+  isDraggable?: boolean      // true only for top card (stackPosition === 0)
+  onSwipeRight?: () => void
+  onSwipeLeft?: () => void
+}
 
-### 4.2 Session Lobby
-
-```
-┌─────────────────────────────────┐
-│ aya                             │
-│ Waiting for your group          │
-│ Share the code below.           │
-│                                 │
-│ ┌─────────────────────────────┐ │
-│ │  SESSION CODE               │ │
-│ │  AYA-4820          [QR]     │ │
-│ └─────────────────────────────┘ │
-│ [< Share link]                  │
-│                                 │
-│ PARTICIPANTS (4)                │
-│ ● Jan Louise (you)     Done     │
-│ ● Anonymous            Swiping  │
-│ ● Maricel R.           Done     │
-│ ● —                   Pending  │
-│                                 │
-│ ℹ Results appear when everyone  │
-│   finishes. No one sees anyone  │
-│   else's choices until then.    │
-└─────────────────────────────────┘
-```
-
-### 4.3 Reveal Screen
-
-```
-┌─────────────────────────────────┐
-│ EVERYONE AGREED                 │
-│ You found a match.              │
-│ 4 of 4 swiped right on this.    │
-│                                 │
-│ ┌─ TOP MATCH ──────────────────┐│
-│ │  [VENUE PHOTO]               ││
-│ │  CAFE · MAKATI               ││
-│ │  Lito's Brew & Bites         ││
-│ │  1.2 km · ~₱250/head · Open  ││
-│ │  Enthusiasm ▓▓▓▓▓▓▓▓░░      ││
-│ │  [chill] [instagrammable]    ││
-│ └──────────────────────────────┘│
-│                                 │
-│ OTHER MATCHES (2)               │
-│ ○ Florinda's Panciteria         │
-│ ○ Bayleaf Rooftop               │
-│                                 │
-│ [☆ Aya Decides — lock it in]   │
-└─────────────────────────────────┘
+type BadgeType = 'DEAL' | 'COMMUNITY' | 'HIDDEN_GEM'
 ```
 4.4 Outing Type Selector (New Landing Page)
 ┌─────────────────────────────────┐
@@ -350,232 +206,560 @@ The `establishments` table will be seeded with **30–40 mock spots** that repre
 └─────────────────────────────────┘
 ---
 
-## 5. AI INTEGRATION DESIGN
-
-### 5.1 NVIDIA NIM Vibe Tag Engine
-
-**Trigger:** Called once per session when context is set, or per card if not pre-tagged.
-
-**Prompt Template:**
-```
-You are Aya, a Filipino dining and outing recommendation AI.
-
-Given this establishment data:
-Name: {name}
-Category: {category}
-Address: {address}
-Cost per head: ₱{cost_min}–{cost_max}
-Hours: {opens_at}–{closes_at}
-User context: {vibe}, {group_size} people, budget: {budget}
-
-Generate exactly 3–5 short vibe tags (2–3 words max each) in lowercase.
-Tags should be from: budget-friendly, hidden gem, family-friendly, date spot,
-instagrammable, chill, open late, may parking, barkada vibes, solo friendly,
-quick service, unlimited rice, sea view, rooftop, artsy, community pick, hot spot.
-
-Respond ONLY with a JSON array of strings. No explanation. No markdown.
-Example: ["hidden gem", "chill", "budget-friendly"]
-```
-
-**Implementation:** `lib/nvidia/nim.ts` wraps the OpenAI-compatible endpoint.
-
-### 5.2 Aya Decides Scoring (`lib/swipe/scorer.ts`)
-
-For each establishment, compute an **enthusiasm score**:
+### 3.2 SwipeActions
 
 ```
-score = (right_swipes × 100) 
-      + (avg_speed_bonus)        // faster swipe = more enthusiastic
-      + (avg_drag_bonus)         // longer drag = more enthusiasm
-      - (undo_penalty × 50)      // if undone, slight penalty
-
-speed_bonus = max(0, (5000 - speed_ms) / 50)   // faster than 5s = bonus
-drag_bonus  = min(50, drag_distance / 3)
+[  ✕  ]    [  ↩  ]    [  ✓  ]
+ Skip       Undo       Like
+(red)      (gray)    (green)
 ```
 
-In barkada mode: aggregate across all participants, pick highest score.
+All buttons 56×56px minimum. Undo disabled (opacity 0.35) when no undo is available.
 
-### 5.3 Context Processing (Kwentuhan → AI Filter)
+### 3.3 OnboardingTile
 
-The onboarding flow collects:
+```
+┌─────────────────┐
+│                 │
+│    [Icon 48px]  │
+│                 │
+│  Category Name  │
+│  Subtitle desc  │
+│                 │
+└─────────────────┘
+```
+
+Selected state: `--color-brand` border (2px), `--color-brand-light` background fill.
+Grid: 2 columns, equal width, `gap-3`.
+
+### 3.4 SessionCode
+
+```
+┌──────────────────────────┐
+│  SESSION CODE            │
+│                          │
+│  AYA-4820               │
+│  (DM Mono, 36px, white)  │
+│                          │
+│  [< Share link] [QR]     │
+└──────────────────────────┘
+```
+
+Dark background (`#1A1A1A`), rounded-xl, padding-6.
+
+### 3.5 ParticipantRow
+
+```
+[Avatar initials]  Name (you)           Done ●green
+[Avatar initials]  Waiting for link...  Swiping ●amber
+[Avatar initials]  Maricel R.           Done ●green
+[Avatar initials]  Pending...           — ●gray
+```
+
+### 3.6 BudgetChip
+
+```
+[ ₱ Grabe Tipid ]  [ ₱₱ Kaya Naman ]  [ ₱₱₱ Bahala Na ]
+```
+
+Single-select. Selected: brand orange fill, white text.
+
+### 3.7 VibeTag
+
+```
+[ budget-friendly ]  [ hidden gem ]  [ open late ]
+```
+
+Background: `--color-tag-bg`. Rounded-full. Font: Inter 12px. Non-interactive (display only on cards). Multi-select interactive version used in forms.
+
+### 3.8 MatchRevealCard
+
+Hero-size card for the top match on the reveal screen. Larger photo (65% height), enthusiasm bar below info row, "GROUP PICK" accent banner.
+
+---
+
+## 4. SCREEN SPECIFICATIONS
+
+### Screen 1 — Kwentuhan (Onboarding)
+**Route:** `/`
+
+**Flow (5 steps, one per screen or stacked):**
+1. Outing type — 4 tiles: Food & Drinks, Activities, Explore, Full Day
+2. Group size — 4 tiles: Just Me → Malaking Grupo
+3. Budget — 3 chips: Grabe Tipid / Kaya Naman / Bahala Na
+4. Distance — slider or 5 preset chips
+5. Time context — 5 chips: Ngayon, Lunch, Merienda, Dinner, Gabi
+
+**At every step:** "Or just type it out" text field is visible at the bottom.
+**Natural language submit** → POST `/api/ai/parse-filters` → NVIDIA NIM Gemma4 31b-IT → returns filter JSON.
+
+**Shortcuts visible on landing screen:**
+- "Surprise Me — skip all this" → random deck, Solo Mode
+- "Mag-Barkada Mode" → shows group size step first, then jumps to session create
+
+**State shape:**
 ```typescript
-type SessionContext = {
+interface OnboardingState {
+  outingType: 'food' | 'activities' | 'explore' | 'fullday' | null
+  groupSize: 'solo' | 'small' | 'medium' | 'large' | null
+  budget: 'tipid' | 'kaya' | 'bahala' | null
+  maxDistanceKm: number      // default 3
+  timeContext: 'now' | 'lunch' | 'merienda' | 'dinner' | 'late' | null
+  nlpInput: string
   mode: 'solo' | 'barkada' | 'lakbay'
-  outing_type: 'food' | 'activities' | 'explore' | 'full_day'
-  group_size: number
-  budget: 'tipid' | 'mid' | 'bahala_na'    // ₱<150 | ₱150–350 | ₱350+
-  distance_km: number                        // 1 | 3 | 5 | 10
-  time_of_day: 'lunch' | 'merienda' | 'dinner' | 'anytime'
-  natural_language?: string                  // free text input
+  parsedFilters: ParsedFilters | null   // populated after NLP parse or step completion
+  sessionContext: {                     // populated when entering Barkada Mode
+    sessionId: string
+    sessionCode: string
+    participantId: string
+  } | null
 }
 ```
 
-AI also processes `natural_language` input to extract implicit filters:
-- *"may allergy sa seafood"* → exclude seafood establishments
-- *"gusto namin ng hindi masyadong maingay"* → filter for "chill" vibe
-
 ---
 
-## 6. REAL-TIME SESSION FLOW (BARKADA MODE)
+### Screen 2 — Swipe Deck (Solo Mode)
+**Route:** `/discover`
 
-```
-Host Device                    Supabase Realtime           Guest Device
-    │                               │                           │
-    │── POST /api/session ─────────►│                           │
-    │◄─ { code: "AYA-4820" } ───────│                           │
-    │                               │                           │
-    │── Subscribe channel ─────────►│                           │
-    │   "session:AYA-4820"          │                           │
-    │                               │                           │
-    │ [Share link to guest]         │                           │
-    │                               │◄── Join session link ─────│
-    │                               │◄── INSERT participant ─────│
-    │◄─ participant joined event ───│                           │
-    │                               │──► participant confirmed ─►│
-    │                               │                           │
-    │ [Both swipe independently]    │                           │
-    │── INSERT swipe (right) ──────►│                           │
-    │                               │──► swipe event ──────────►│
-    │                               │                           │
-    │── UPDATE participant done ───►│                           │
-    │                               │◄── UPDATE participant done │
-    │◄─ all_done trigger ───────────│──► all_done trigger ──────►│
-    │                               │                           │
-    │ [Both redirect to /reveal]    │        [Both redirect]    │
-    │── GET /api/match ────────────►│                           │
-    │◄─ { matched: [...], top: {} } │                           │
-```
+**Header:** `← aya` wordmark (left) + `SOLO` pill chip (right) + profile icon
+**Card stack:** centered, fills ~65vh, cards are ~90% viewport width
+**Footer:** `Card 4 of 18 · Solo Mode` counter (centered, small, gray)
+**Action row:** Skip / Undo / Like buttons
+**Bottom nav:** DISCOVER | PIN | HISTORY
 
-**Supabase channel setup:**
+**Swipe gesture implementation:**
 ```typescript
-const channel = supabase.channel(`session:${sessionCode}`)
-  .on('postgres_changes', { 
-    event: '*', schema: 'public', table: 'participants',
-    filter: `session_id=eq.${sessionId}` 
-  }, handleParticipantUpdate)
-  .on('postgres_changes', {
-    event: 'INSERT', schema: 'public', table: 'swipes',
-    filter: `session_id=eq.${sessionId}`
-  }, handleSwipeEvent)
-  .subscribe()
+const SWIPE_THRESHOLD = 80        // px to commit a swipe
+const VELOCITY_THRESHOLD = 400    // px/s for fast-flick detection
+
+// dragX from Framer Motion useDragControls
+// positive dragX = right = LIKE = green glow
+// negative dragX = left  = SKIP = red glow
+
+const glowOpacity = Math.min(Math.abs(dragX) / SWIPE_THRESHOLD, 1)
+// Apply to card box-shadow dynamically
+```
+
+**On commit right:** POST `/api/swipe` with `{ direction: 'right', venueId, speed, hesitation, dragDistance }` → card exits → next card scales up with spring
+**On commit left:** same POST with `direction: 'left'` → card exits left
+**Undo:** card re-enters from off-screen left with spring, previous swipe DELETE called
+
+---
+
+### Screen 3 — Barkada Create / Join
+**Route:** `/barkada`
+
+Two tabs:
+- **Mag-imbita (Create):** Shows filter summary from Kwentuhan → "Generate Session" CTA → goes to Lobby
+- **Sumali (Join):** Session code text input + "Sumali Na" button
+
+---
+
+### Screen 4 — Barkada Lobby
+**Route:** `/session/[code]`
+
+**Realtime subscription:** `supabase.channel('session:${code}')`
+
+**Live updates:**
+- Participant joins → row appears with "Joined just now" + amber dot
+- Participant finishes deck → row updates to "Done" + green dot
+- Circular progress ring per participant
+
+**Notice at bottom (always visible):**
+> "Results appear automatically once everyone finishes. No one sees anyone else's choices until then."
+
+**State in Supabase Realtime channel:**
+```typescript
+// Broadcast events
+'participant_joined'  → { participantId, displayName }
+'participant_done'    → { participantId }
+'all_done'            → triggers reveal page redirect for all
 ```
 
 ---
 
-## 7. DESIGN SYSTEM
+### Screen 5 — Group Reveal
+**Route:** `/session/[code]/reveal`
 
-### 7.1 Color Palette
-```css
-:root {
-  --aya-bg:        #F5F0E8;   /* warm off-white, like manila paper */
-  --aya-surface:   #FFFFFF;
-  --aya-primary:   #E85D26;   /* warm orange-red, like a flame */
-  --aya-secondary: #1A1A1A;   /* near black */
-  --aya-accent:    #F4A261;   /* muted amber */
-  --aya-muted:     #9B9082;   /* warm gray */
-  --aya-swipe-yes: #22C55E;   /* green glow on right swipe */
-  --aya-swipe-no:  #EF4444;   /* red glow on left swipe */
-  --aya-community: #6366F1;   /* indigo for community badges */
-  --aya-deal:      #F59E0B;   /* amber for deal badges */
+**Triggered:** When Supabase detects all `participants.is_done = true` for the session
+
+**Animation sequence (Framer Motion):**
+```
+0.0s  "EVERYONE AGREED" badge fades in
+0.3s  "You found a match." headline scales up (spring, stiffness: 200)
+0.6s  Top match card flies up from below (spring, stiffness: 150)
+0.9s  Enthusiasm bar fills left to right (1s duration)
+1.1s  Other matches stagger in (0.12s delay each)
+1.6s  "Aya Decides — lock it in" button pulses (scale 1 → 1.04 → 1, loop)
+```
+
+**Aya Decides scoring formula:**
+```typescript
+const score = (rightSwipes / totalParticipants) * 0.5
+            + (avgSwipeSpeed > 300 ? 0.3 : 0.1)   // fast swipe = enthusiastic
+            + (1 - avgHesitation / 3000) * 0.2      // less hesitation = more confident
+// Highest score wins
+```
+
+---
+
+### Screen 6 — Lakbay Mode (Itinerary) 🎭 FAKED
+**Route:** `/lakbay`
+
+**How the fake works:**
+1. User's filters from Kwentuhan are passed as a string to a preset selector function
+2. Function matches keywords (budget, time, group type) to one of 4 hardcoded preset itineraries
+3. The selected preset renders in the full Lakbay UI — looks AI-generated
+
+**4 preset itineraries stored in `/data/itineraries.ts`:**
+- `budget-friends-afternoon` — QC carinderia crawl, Eastwood evening, ~₱500/head
+- `couple-date-evening` — BGC café, rooftop dinner, ~₱1,200/head
+- `family-weekend` — SM Mall lunch, indoor playground, merienda, ~₱800/head
+- `solo-explore-tipid` — Divisoria market, Binondo food walk, ~₱250/head
+
+**UI elements (all real, data is fake):**
+- Leaflet.js map with OpenStreetMap tiles showing route dots
+- Vertical timeline: stop time, category, venue name, cost, transport to next stop
+- Total cost + total hours
+- "Use this plan →" and "Skip" buttons
+
+---
+
+### Screen 7 — Drop a Pin 🎭 FAKED (UI Real, Backend Shallow)
+**Route:** `/pin`
+
+Full UI per Mockup 6. On submit → INSERT into `community_pins` with `status: 'pending'` → success toast: "Salamat! Your pin is under review." Nothing else happens.
+
+Demo deck has 3 pre-seeded community pins already in `approved` status with hardcoded `community_count` values.
+
+---
+
+### Screen 8 — MSME Portal 🎭 FAKED (UI Real, Backend Shallow)
+**Route:** `/business`
+
+Full UI per Mockup 7. On submit → INSERT into `msme_listings` with `status: 'pending'` → success screen: "Submitted for review! We'll verify your listing shortly." Nothing else.
+
+---
+
+### Screen 9 — Session History
+**Route:** `/history`
+
+**Stored in:** `localStorage` key `aya_history` (array of session summary objects)
+
+**Structure:**
+```typescript
+interface SessionSummary {
+  date: string
+  mode: 'solo' | 'barkada' | 'lakbay'
+  matchedVenueName: string
+  matchedVenueCategory: string
+  participantCount: number
+  didVisit?: boolean
 }
 ```
 
-### 7.2 Typography
-```css
-/* Primary: Geist (Next.js default) */
-/* Display: Use font-black weight for headings */
-/* Body: font-normal, text-base */
-/* Filipino-language copy: Tagalog UI strings throughout */
+Renders as a scrollable timeline. "Did you go?" prompt for sessions from the last 48 hours.
+
+---
+
+### Screen 10 — Admin Dashboard 🎭 FAKED
+**Route:** `/admin`
+
+Static UI with hardcoded mock data. Approve/reject buttons fire success toasts only. No DB calls. Protected by a simple `?key=aya2026` query param check (not real auth — just enough to not show it publicly).
+
+---
+
+## 5. DATABASE SCHEMA
+
+```sql
+-- Sessions (ephemeral)
+CREATE TABLE sessions (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  code        TEXT UNIQUE NOT NULL,       -- "AYA-4820"
+  mode        TEXT NOT NULL,              -- 'solo' | 'barkada' | 'lakbay'
+  filters     JSONB NOT NULL DEFAULT '{}',
+  status      TEXT DEFAULT 'active',      -- 'active' | 'completed' | 'expired'
+  created_at  TIMESTAMPTZ DEFAULT NOW(),
+  expires_at  TIMESTAMPTZ DEFAULT NOW() + INTERVAL '2 hours'
+);
+
+-- Participants
+CREATE TABLE participants (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_id   UUID REFERENCES sessions(id) ON DELETE CASCADE,
+  display_name TEXT,
+  is_done      BOOLEAN DEFAULT FALSE,
+  joined_at    TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Swipes (ephemeral — never read by client)
+CREATE TABLE swipes (
+  id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_id     UUID REFERENCES sessions(id) ON DELETE CASCADE,
+  participant_id UUID REFERENCES participants(id) ON DELETE CASCADE,
+  venue_id       TEXT NOT NULL,           -- Google Places place_id or mock ID
+  direction      TEXT NOT NULL,           -- 'right' | 'left'
+  swipe_speed_ms INT DEFAULT 0,
+  hesitation_ms  INT DEFAULT 0,
+  drag_distance  FLOAT DEFAULT 0,
+  created_at     TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Venues (cached/seeded — never fetched live during demo)
+CREATE TABLE venues (
+  id            TEXT PRIMARY KEY,         -- place_id or 'mock_001'
+  name          TEXT NOT NULL,
+  category      TEXT NOT NULL,
+  district      TEXT NOT NULL,
+  cost_tier     INT NOT NULL,             -- 1 | 2 | 3
+  cost_min      INT,
+  cost_max      INT,
+  photo_url     TEXT,
+  is_open_now   BOOLEAN DEFAULT TRUE,
+  closing_time  TEXT,
+  latitude      FLOAT,
+  longitude     FLOAT,
+  vibe_tags     TEXT[] DEFAULT '{}',      -- pre-generated by NVIDIA NIM at seed time
+  is_msme       BOOLEAN DEFAULT FALSE,
+  is_community  BOOLEAN DEFAULT FALSE,
+  community_count INT DEFAULT 0,          -- hardcoded for demo
+  deal_text     TEXT,
+  rating        FLOAT
+);
+
+-- Community pins (shallow — UI only)
+CREATE TABLE community_pins (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  place_name    TEXT NOT NULL,
+  lat           FLOAT,
+  lng           FLOAT,
+  photo_url     TEXT,
+  description   TEXT,
+  vibe_tags     TEXT[] DEFAULT '{}',
+  status        TEXT DEFAULT 'pending',
+  created_at    TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- MSME listings (shallow — UI only)
+CREATE TABLE msme_listings (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  business_name TEXT NOT NULL,
+  hours_open    TEXT,
+  hours_close   TEXT,
+  budget_tier   INT,
+  vibe_tags     TEXT[] DEFAULT '{}',
+  deal_text     TEXT,
+  deal_start    TIMESTAMPTZ,
+  deal_end      TIMESTAMPTZ,
+  status        TEXT DEFAULT 'pending',
+  created_at    TIMESTAMPTZ DEFAULT NOW()
+);
 ```
 
-### 7.3 Motion Guidelines
-- Card entry: `spring({ stiffness: 300, damping: 30 })`
-- Card exit (swipe): `tween({ duration: 0.3 })`
-- Reveal entrance: staggered fly-in, 0.1s delay per card
-- Lobby status: pulse animation on "Swiping" state
-- Avoid heavy blur/shadow effects (mobile GPU friendly)
+---
+
+## 6. API ROUTES
+
+```
+POST  /api/ai/parse-filters      NLP: Filipino/English text → filter JSON (NVIDIA NIM)
+POST  /api/ai/generate-tags      Venue data → vibe tags array (NVIDIA NIM, used at seed time only)
+
+GET   /api/venues                Get card deck — accepts ?budget=1|2|3&limit=18
+
+POST  /api/session/create        Create group session → returns session code
+GET   /api/session/[code]        Get session state + participant list
+POST  /api/session/[code]/join   Add participant to session
+POST  /api/session/[code]/done   Mark participant done; triggers session completion if all done
+GET   /api/session/[code]/reveal Compute match results + purge swipes (only if session completed)
+
+POST  /api/swipe                 Record a swipe (server-side only, never read by client)
+
+POST  /api/pin/submit            Insert community pin (status: pending — UI only)
+POST  /api/business/submit       Insert MSME listing (status: pending — UI only)
+```
 
 ---
 
-## 8. SMOKE & MIRRORS PAGES
+## 7. NVIDIA NIM INTEGRATION
 
-### 8.1 Lakbay (Itinerary Mode)
-- Show Kwentuhan flow normally (context collection)
-- On submit: show a **loading screen** ("Aya is planning your day... 3–5 seconds with fake progress")
-- Display hardcoded itinerary from `lib/data/itineraries.ts` based on selected budget/vibe
-- Itinerary cards look AI-composed (they are seeded with realistic data)
-- Include Leaflet.js map thumbnail showing route dots
+### Client Setup
 
-### 8.2 Drop a Pin
-- Full form UI (photo upload area, place name, GPS marker, vibe tags)
-- On submit: show success toast "Thanks! Your pin is in the verification queue."
-- Data goes nowhere. No DB write.
+> Uses the `openai` npm package (NVIDIA NIM is OpenAI-API-compatible). Do NOT use raw `fetch` here.
 
-### 8.3 Business Listing Portal
-- Full form UI (business name, photos, hours, budget tier, vibe tags, deal toggle)
-- On submit: show success state "We'll review your listing within 24 hours."
-- Data goes nowhere.
+```typescript
+// lib/nvidia-nim.ts
+import OpenAI from 'openai'
 
-### 8.4 Session History
-- Pull from localStorage if available, else show hardcoded sample history
-- Shows 3–4 past "sessions" with realistic dates and venue names
-- "Did you go?" prompt is interactive but non-functional
+const client = new OpenAI({
+  apiKey: process.env.NVIDIA_NIM_API_KEY,
+  baseURL: 'https://integrate.api.nvidia.com/v1',
+})
 
----
-
-## 9. MOBILE-FIRST CONSTRAINTS
-
-- All layouts designed for 390px wide (iPhone 14 width)
-- Max content width: 440px, centered on desktop
-- Touch targets: minimum 44×44px
-- Bottom navigation always fixed
-- Swipe zone: full-screen drag, not limited to card
-- No hover states as primary interactions (touch-first)
-- Avoid `position: fixed` nesting issues on iOS Safari
-
----
-
-## 10. API ROUTES
-
-| Route | Method | Description |
-|---|---|---|
-| `/api/ai/vibe` | POST | Generate vibe tags for an establishment |
-| `/api/ai/context` | POST | Parse natural language context input |
-| `/api/session` | POST | Create a new session |
-| `/api/session/[code]` | GET | Get session details + card stack |
-| `/api/session/[code]/join` | POST | Join session as participant |
-| `/api/swipe` | POST | Record a swipe event |
-| `/api/match/[code]` | GET | Compute match from all swipes |
-| `/api/match/[code]/decide` | GET | Aya Decides — behavioral tiebreaker |
-
----
-
-## 11. DEPENDENCIES (package.json)
-
-```json
-{
-  "dependencies": {
-    "next": "14.2.x",
-    "react": "^18",
-    "react-dom": "^18",
-    "typescript": "^5",
-    "@supabase/supabase-js": "^2",
-    "@supabase/ssr": "^0.1",
-    "framer-motion": "^11",
-    "tailwindcss": "^3",
-    "openai": "^4",
-    "leaflet": "^1.9",
-    "react-leaflet": "^4",
-    "lucide-react": "^0.400",
-    "clsx": "^2",
-    "tailwind-merge": "^2"
-  },
-  "devDependencies": {
-    "@types/react": "^18",
-    "@types/node": "^20",
-    "@types/leaflet": "^1.9",
-    "autoprefixer": "^10",
-    "postcss": "^8"
+export async function nimComplete(
+  systemPrompt: string,
+  userMessage: string,
+  maxTokens = 512
+): Promise<string> {
+  try {
+    const completion = await client.chat.completions.create({
+      model: 'google/gemma-4-31b-it',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userMessage },
+      ],
+      max_tokens: maxTokens,
+      temperature: 0.4,
+    })
+    return completion.choices[0]?.message?.content ?? ''
+  } catch (err) {
+    console.error('[NVIDIA NIM Error]', err)
+    return ''
   }
 }
 ```
+
+### Filter Parsing System Prompt
+
+```typescript
+export const FILTER_PARSE_PROMPT = `
+You are a context parser for Aya, a Filipino dining and outing recommendation app.
+Extract structured filters from natural language input in Filipino, Taglish, or English.
+
+Return ONLY valid JSON with no explanation, no markdown, no backticks:
+{
+  "outingType": "food" | "activities" | "explore" | "fullday",
+  "groupSize": "solo" | "small" | "medium" | "large",
+  "budget": "tipid" | "kaya" | "bahala",
+  "maxDistanceKm": 1 | 3 | 5 | 10,
+  "timeContext": "now" | "lunch" | "merienda" | "dinner" | "late",
+  "restrictions": [],
+  "vibeKeywords": []
+}
+
+Filipino budget hints: "tipid/mura/wala masyadong budget" → "tipid", "kaya naman/ok lang" → "kaya", "ok kahit mahal/bahala na" → "bahala"
+Group size hints: "kami dalawa/tatlo" → "small", "grupo/barkada" → "medium", "pamilya" → "medium", "solo/ako lang" → "solo"
+Dietary: "walang baboy" → restrictions: ["no pork"], "halal" → restrictions: ["halal"]
+`
+```
+
+### Vibe Tag System Prompt
+
+```typescript
+export const VIBE_TAG_PROMPT = `
+You are a vibe tag generator for a local Filipino discovery app called Aya.
+Given a venue name, category, district, and cost tier, generate exactly 3-4 concise vibe tags.
+
+Choose ONLY from this list:
+budget-friendly, hidden gem, open late, family-friendly, instagrammable, chill,
+may parking, kid-friendly, date spot, barkada favorite, good for solo, quick service,
+community pick, outdoor seating, pet-friendly, live music, late night, near commute
+
+Return ONLY a JSON array of strings. No explanation. No markdown. Example:
+["budget-friendly", "hidden gem", "chill"]
+`
+```
+
+### Itinerary Selector (Fake AI — Actually a Lookup)
+
+```typescript
+// lib/itinerary-selector.ts
+// This LOOKS like AI but is actually a smart preset lookup
+export function selectItinerary(filters: OnboardingFilters): Itinerary {
+  if (filters.groupSize === 'solo' && filters.budget === 'tipid') {
+    return ITINERARY_PRESETS['solo-explore-tipid']
+  }
+  if (filters.groupSize === 'small' && filters.budget !== 'tipid') {
+    return ITINERARY_PRESETS['couple-date-evening']
+  }
+  if (filters.groupSize === 'medium') {
+    return ITINERARY_PRESETS['budget-friends-afternoon']
+  }
+  return ITINERARY_PRESETS['family-weekend']  // default
+}
+```
+
+---
+
+## 8. ANIMATION SPECS (Framer Motion)
+
+### Card Swipe Physics
+
+```typescript
+// components/VenueCard.tsx
+import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion'
+
+const x = useMotionValue(0)
+const rotate = useTransform(x, [-200, 0, 200], [-18, 0, 18])
+const approveOpacity = useTransform(x, [0, 80], [0, 1])
+const skipOpacity = useTransform(x, [-80, 0], [1, 0])
+
+// On drag end:
+const handleDragEnd = (_, info) => {
+  const { offset, velocity } = info
+  if (offset.x > 80 || velocity.x > 400) onSwipeRight()
+  else if (offset.x < -80 || velocity.x < -400) onSwipeLeft()
+  // else snap back to center (spring)
+}
+```
+
+### Reveal Sequence
+
+```typescript
+// All coordinated via Framer Motion variants + staggerChildren
+const container = { hidden: {}, show: { transition: { staggerChildren: 0.15, delayChildren: 0.6 }}}
+const item = { hidden: { opacity: 0, y: 30 }, show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 200 }}}
+```
+
+### Page Transitions
+
+```typescript
+// Wrap routes in this in layout.tsx
+const pageVariants = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.25, ease: 'easeOut' }},
+  exit:    { opacity: 0, y: -10, transition: { duration: 0.2 }}
+}
+```
+
+---
+
+## 9. MOBILE VIEWPORT BEHAVIOR
+
+```
+375px  iPhone SE — minimum supported, all layouts tested here first
+390px  iPhone 14 — primary design target
+412px  Pixel / Android
+768px+ Tablet — mobile frame centered (max-w-[430px] mx-auto)
+1024px+ Desktop — same mobile frame, decorative bg pattern behind it
+```
+
+**Critical rules:**
+- Never use `vh` for card heights on mobile — use `dvh` or fixed pixel values (iOS Safari `100vh` bug)
+- Bottom nav uses `pb-safe` (Tailwind safe area inset for notched phones)
+- Swipe cards use `touch-none` to prevent scroll interference
+
+---
+
+## 10. DEMO DATA STRATEGY
+
+Pre-seed the `venues` table with **30 Metro Manila venues** at project initialization:
+
+| Category | Count | Districts |
+|---|---|---|
+| Carinderia / Turo-turo | 8 | QC, Marikina, Pasay |
+| Café | 7 | BGC, Makati, Katipunan |
+| Restaurant (casual) | 6 | Eastwood, Ortigas, Mandaluyong |
+| Street Food / Market | 5 | Divisoria, Quiapo, Pasig |
+| Activity Spots | 4 | BGC, Intramuros, QC |
+
+All 30 venues have:
+- Realistic Filipino names
+- Pre-generated vibe tags (NVIDIA NIM called **once at seed time**)
+- `photo_url` pointing to Unsplash food/venue images (static, no API call)
+- Hardcoded `community_count` for 5 venues marked `is_community: true`
+
+> **Do not call NVIDIA NIM or Google Places live during the demo.** All venue data comes from the pre-seeded `venues` table.
+
+---
+
+*Document Version: 2.0 | Roocode + NVIDIA NIM | Team iNet — SIKAPTala 2026*
