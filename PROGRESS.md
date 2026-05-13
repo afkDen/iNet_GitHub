@@ -7,8 +7,8 @@
 ## LAST UPDATED
 _Update this timestamp every time you check something off._
 ```
-Last update: 2026-05-13 20:34 PHT
-Updated by:  Den
+Last update: 2026-05-14 01:15 PHT
+Updated by:  Gemini CLI
 ```
 
 ---
@@ -22,7 +22,7 @@ Updated by:  Den
 | BACKEND | Backend Lead | 🔄 | 40% |
 | AI | AI Lead | 🔄 | 80% |
 | INTEGRATION | Integration | ⬜ | 0% |
-| DEMO / SMOKE & MIRRORS | Demo Lead | ⬜ | 0% |
+| DEMO / SMOKE & MIRRORS | Demo Lead | 🔄 | 20% |
 | POLISH | All | ⬜ | 0% |
 
 ---
@@ -50,6 +50,7 @@ Updated by:  Den
 - [x] ✅ Configure Tailwind with Aya design tokens (see DESIGN.md §7.1)
 - [x] ✅ Root layout with Aya branding — metadata, viewport, Geist fonts, Aya bg (app/layout.tsx)
 - [x] ✅ Global CSS with full Aya design system — CSS vars, @theme inline, utility classes (app/globals.css)
+- [x] ✅ Create `components/providers/SessionProvider.tsx` for global state
 - [ ] ⬜ Create `.env.example` file (safe env template for GitHub)
 
 **Notes / Blockers:**
@@ -58,8 +59,8 @@ Updated by:  Den
 - Supabase project is live and accessible
 - All API keys present in .env.local
 - DB schema has been executed in Supabase SQL editor (no local .sql file yet)
-- app/page.tsx still has Next.js boilerplate — needs redirect to /onboarding per DESIGN.md
-- No .env.example file yet (mentioned in DESIGN.md §2)
+- [x] ✅ app/page.tsx updated with Aya landing page & redirect to /onboarding per DESIGN.md
+- [x] ✅ Frontend components connected via SessionProvider (Onboarding -> Swipe)
 ```
 
 ---
@@ -71,48 +72,48 @@ Updated by:  Den
 **Goal:** All user-facing screens built and responsive on mobile
 
 ### Phase A — Onboarding (Kwentuhan)
-- [ ] ⬜ `/onboarding/page.tsx` — base layout, header, progress dots
-- [ ] ⬜ `ContextCards.tsx` — tappable choice tiles (outing type, group size, budget, distance)
-- [ ] ⬜ Mode selector tiles (Solo / Barkada / Lakbay) on first step
-- [ ] ⬜ Budget display with Filipino labels ("Grabe Tipid" → "Bahala Na")
-- [ ] ⬜ Natural language text input with placeholder
-- [ ] ⬜ "Surprise Me!" button (randomize all context, skip to swipe)
-- [ ] ⬜ "Next →" button advances through steps
-- [ ] ⬜ Smooth step transitions (Framer Motion `AnimatePresence`)
-- [ ] ⬜ State collected into `SessionContext` object
+- [x] ✅ `/onboarding/page.tsx` — base layout, header, progress dots, and Category Selector
+- [x] ✅ `ContextCards.tsx` — tappable choice tiles (budget, distance)
+- [x] ✅ Mode selector tiles (Solo / Barkada / Lakbay)
+- [x] ✅ Budget display with Filipino labels ("Grabe Tipid" → "Bahala Na")
+- [x] ✅ Natural language text input with placeholder
+- [x] ✅ "Surprise Me!" button (randomize context, skip to solo swipe)
+- [x] ✅ "Next →" button advances through steps
+- [x] ✅ Smooth step transitions (Framer Motion `AnimatePresence`)
+- [x] ✅ State collected into `SessionContext` object (via SessionProvider)
 
 ### Phase B — Swipe Deck (Hain)
-- [ ] ⬜ `SwipeCard.tsx` — base card layout (photo, name, meta, tags, action buttons)
-- [ ] ⬜ `VibeBadge.tsx` — colored pill component for vibe tags
-- [ ] ⬜ Deal badge (amber) + Community badge (indigo) conditional rendering
-- [ ] ⬜ `SwipeDeck.tsx` — stack of 2–3 cards visible, top card draggable
-- [ ] ⬜ `useSwipe.ts` hook — Framer Motion drag with x-axis tracking
-- [ ] ⬜ Right swipe: green glow overlay + fly out right
-- [ ] ⬜ Left swipe: red glow overlay + fly out left
-- [ ] ⬜ Button-triggered swipe (programmatic via `useAnimation`)
-- [ ] ⬜ Undo ("Balik Mo To") — pull back last card, one per session
-- [ ] ⬜ Progress counter "Card N of 18 · Solo Mode"
-- [ ] ⬜ Empty deck state → trigger match/end screen
-- [ ] ⬜ `/solo/page.tsx` — solo mode swipe page
-- [ ] ⬜ Solo match screen — single card reveal + directions button
+- [x] ✅ `SwipeCard.tsx` — base card layout (photo, name, meta, tags, action buttons)
+- [x] ✅ `VibeBadge.tsx` — colored pill component for vibe tags
+- [x] ✅ Deal badge (amber) + Community badge (indigo) conditional rendering
+- [x] ✅ `SwipeDeck.tsx` — stack of 2–3 cards visible, top card draggable
+- [ ] ⬜ `useSwipe.ts` hook — Framer Motion drag with x-axis tracking (Logic in SwipeCard for now)
+- [x] ✅ Right swipe: green glow overlay + fly out right
+- [x] ✅ Left swipe: red glow overlay + fly out left
+- [x] ✅ Button-triggered swipe (programmatic via `useAnimation`)
+- [x] ✅ Undo ("Balik Mo To") — pull back last card, one per session
+- [x] ✅ Progress counter "Card N of 18 · Solo Mode"
+- [x] ✅ Empty deck state → trigger match/end screen
+- [x] ✅ `/solo/page.tsx` — solo mode swipe page
+- [x] ✅ Solo match screen — single card reveal + directions button
 
 ### Phase C — Group Mode UI
-- [ ] ⬜ `/barkada/page.tsx` — create session button, generate code
+- [x] ✅ `/barkada/page.tsx` — create session button, generate code (Lobby Placeholder)
 - [ ] ⬜ `SessionLobby.tsx` — participant list with live status dots
-- [ ] ⬜ Session code display (large, bold) + QR code placeholder
-- [ ] ⬜ Share link button (Web Share API or clipboard copy)
+- [x] ✅ Session code display (large, bold) + QR code placeholder
+- [x] ✅ Share link button (Web Share API or clipboard copy)
 - [ ] ⬜ Circular progress per participant (filled when done)
 - [ ] ⬜ "Results appear automatically when everyone finishes" note
 - [ ] ⬜ `/barkada/[sessionCode]/swipe/page.tsx` — same deck in barkada mode
-- [ ] ⬜ `RevealScreen.tsx` — animated card fly-in, enthusiasm bars
-- [ ] ⬜ Top match hero card + other matches list
+- [x] ✅ `RevealScreen.tsx` — animated card fly-in, enthusiasm bars
+- [x] ✅ Top match hero card + other matches list
 - [ ] ⬜ "Aya Decides — lock it in" button
 - [ ] ⬜ "Pinakamalapit" fallback prompt (no unanimous match)
 
 ### Phase D — Bottom Navigation
-- [ ] ⬜ `BottomNav.tsx` — DISCOVER / PIN / HISTORY tabs
-- [ ] ⬜ Fixed at bottom, safe-area-inset aware (iOS)
-- [ ] ⬜ Active tab highlighting
+- [x] ✅ `BottomNav.tsx` — DISCOVER / PIN / HISTORY tabs
+- [x] ✅ Fixed at bottom, safe-area-inset aware (iOS)
+- [x] ✅ Active tab highlighting
 
 ### Phase E — Shared Components
 - [ ] ⬜ `LoadingSpinner.tsx` — Aya branded (orange flame icon)
@@ -264,7 +265,7 @@ Updated by:  Den
 - [ ] ⬜ Total cost + total time shown at top
 
 ### Drop a Pin — FAKE SUBMIT
-- [ ] ⬜ `/pin/page.tsx` — full form UI
+- [x] ✅ `/pin/page.tsx` — full form UI (Smoke & Mirrors Placeholder)
 - [ ] ⬜ Photo upload area (accepts file, shows preview, does not upload anywhere)
 - [ ] ⬜ Place name input, GPS map (static Leaflet pin, draggable-looking)
 - [ ] ⬜ Vibe tag selector (up to 5 tags, interactive)
@@ -280,7 +281,7 @@ Updated by:  Den
 - [ ] ⬜ No DB write.
 
 ### Session History — FAKE DATA
-- [ ] ⬜ `/history/page.tsx` — "Your Outings" screen
+- [x] ✅ `/history/page.tsx` — "Your Outings" screen (Smoke & Mirrors Placeholder)
 - [ ] ⬜ Pull from localStorage (`aya_history`) if any real sessions exist
 - [ ] ⬜ Pre-populate with 3–4 hardcoded past sessions as fallback
 - [ ] ⬜ "Did you go?" button → shows photo upload prompt (fake)
