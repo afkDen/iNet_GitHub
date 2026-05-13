@@ -7,7 +7,7 @@
 ## LAST UPDATED
 _Update this timestamp every time you check something off._
 ```
-Last update: 2026-05-14 03:45 PHT
+Last update: 2026-05-14 04:10 PHT
 Updated by:  Den
 ```
 
@@ -94,17 +94,17 @@ Updated by:  Den
 - [x] ✅ State collected into `SessionContext` object
 
 ### Phase B — Swipe Deck (Hain)
-- [ ] ⬜ `SwipeCard.tsx` — base card layout (photo, name, meta, tags, action buttons)
-- [ ] ⬜ `VibeBadge.tsx` — colored pill component for vibe tags
-- [ ] ⬜ Deal badge (amber) + Community badge (indigo) conditional rendering
-- [ ] ⬜ `SwipeDeck.tsx` — stack of 2–3 cards visible, top card draggable
-- [ ] ⬜ `useSwipe.ts` hook — Framer Motion drag with x-axis tracking
-- [ ] ⬜ Right swipe: green glow overlay + fly out right
-- [ ] ⬜ Left swipe: red glow overlay + fly out left
-- [ ] ⬜ Button-triggered swipe (programmatic via `useAnimation`)
-- [ ] ⬜ Undo ("Balik Mo To") — pull back last card, one per session
-- [ ] ⬜ Progress counter "Card N of 18 · Solo Mode"
-- [ ] ⬜ Empty deck state → trigger match/end screen
+- [x] ✅ `SwipeCard.tsx` — base card layout (photo, name, meta, tags, action buttons)
+- [x] ✅ `VibeBadge.tsx` — colored pill component for vibe tags
+- [x] ✅ Deal badge (amber) + Community badge (indigo) conditional rendering
+- [x] ✅ `SwipeDeck.tsx` — stack of 2–3 cards visible, top card draggable
+- [x] ✅ `useSwipe.ts` hook — Framer Motion drag with x-axis tracking
+- [x] ✅ Right swipe: green glow overlay + fly out right
+- [x] ✅ Left swipe: red glow overlay + fly out left
+- [x] ✅ Button-triggered swipe (programmatic via `useAnimation`)
+- [x] ✅ Undo ("Balik Mo To") — pull back last card, one per session
+- [x] ✅ Progress counter "Card N of 18 · Solo Mode"
+- [x] ✅ Empty deck state → trigger match/end screen
 - [ ] ⬜ `/solo/page.tsx` — solo mode swipe page
 - [ ] ⬜ Solo match screen — single card reveal + directions button
 
