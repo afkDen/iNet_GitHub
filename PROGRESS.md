@@ -7,7 +7,7 @@
 ## LAST UPDATED
 _Update this timestamp every time you check something off._
 ```
-Last update: 2026-05-13 20:34 PHT
+Last update: 2026-05-14 02:42 PHT
 Updated by:  Den
 ```
 
@@ -17,9 +17,9 @@ Updated by:  Den
 
 | Track | Owner | Status | % Done |
 |---|---|---|---|
-| SETUP | All | 🔄 | 65% |
+| SETUP | All | ✅ | 100% |
 | FRONTEND | Frontend Lead | 🔄 | 5% |
-| BACKEND | Backend Lead | 🔄 | 40% |
+| BACKEND | Backend Lead | 🔄 | 50% |
 | AI | AI Lead | 🔄 | 80% |
 | INTEGRATION | Integration | ⬜ | 0% |
 | DEMO / SMOKE & MIRRORS | Demo Lead | ⬜ | 0% |
@@ -39,27 +39,39 @@ Updated by:  Den
 - [x] ✅ Create `.env.local` with all environment variables (Supabase URL, anon key, service role key, NVIDIA API key, model slug)
 - [x] ✅ Create Supabase project at supabase.com (qafyayulkmlixodjnnbc.supabase.co)
 - [x] ✅ Run full schema SQL in Supabase SQL editor (see DESIGN.md §3.1)
-- [ ] ⬜ Create `lib/supabase/schema.sql` file locally for version control
+- [x] ✅ Create `lib/supabase/schema.sql` file locally for version control
 - [x] ✅ Seed 30+ mock establishments (lib/data/establishments.ts)
-- [ ] ⬜ Test Supabase connection from Next.js
+- [x] ✅ Test Supabase connection from Next.js (verified via seed API + session creation)
 - [x] ✅ Create GitHub repo and push initial commit (https://github.com/afkDen/iNet_GitHub)
-- [ ] ⬜ Connect repo to Vercel for continuous deployment
-- [ ] ⬜ Verify NVIDIA NIM API key works (test call in BUILD_GUIDE.md Phase 3)
+- [x] ✅ Connect repo to Vercel for continuous deployment (https://i-net-git-hub.vercel.app — live, HTTP 200)
+- [x] ✅ Verify NVIDIA NIM API key works (tested: google/gemma-4-31b-it returns vibe tags successfully)
 - [x] ✅ Create `lib/supabase/client.ts` and `lib/supabase/server.ts`
 - [x] ✅ Create global types in `types/index.ts`
 - [x] ✅ Configure Tailwind with Aya design tokens (see DESIGN.md §7.1)
 - [x] ✅ Root layout with Aya branding — metadata, viewport, Geist fonts, Aya bg (app/layout.tsx)
 - [x] ✅ Global CSS with full Aya design system — CSS vars, @theme inline, utility classes (app/globals.css)
-- [ ] ⬜ Create `.env.example` file (safe env template for GitHub)
+- [x] ✅ Create `.env.example` file (safe env template for GitHub)
+- [x] ✅ Create `app/api/seed/route.ts` — seed establishments to Supabase (guarded by ?secret=AYA_SEED_2026)
+- [x] ✅ Create `scripts/seed.ts` — production DB seed script (establishments + demo sessions)
+- [x] ✅ Fix live DB schema via Management API — establishments.id changed from UUID to TEXT, added card_stack (TEXT[]), status, is_done, filters columns
+- [x] ✅ Run seed script successfully — 35 establishments seeded to Supabase
+- [x] ✅ Verify end-to-end: session creation returns full card stack with 18 cards
 
 **Notes / Blockers:**
 ```
 - Next.js 16 (not 14), React 19 (not 18), Tailwind v4 (not v3) — newer versions than DESIGN.md specifies
 - Supabase project is live and accessible
 - All API keys present in .env.local
-- DB schema has been executed in Supabase SQL editor (no local .sql file yet)
+- DB schema has been executed in Supabase SQL editor AND saved locally as lib/supabase/schema.sql
 - app/page.tsx still has Next.js boilerplate — needs redirect to /onboarding per DESIGN.md
-- No .env.example file yet (mentioned in DESIGN.md §2)
+- .env.example created
+- app/api/seed/route.ts and scripts/seed.ts created for DB seeding
+- Live DB schema fixed via Management API: establishments.id is now TEXT, sessions has card_stack/filters/status/matched_id, participants has status/is_done
+- 35 establishments seeded and verified via GET /api/seed?secret=AYA_SEED_2026 → {"success":true,"count":35}
+- Session creation tested: POST /api/session → 200 with 18-card stack, proper filters, session code AYA-XXXX
+- Vercel deployment live at https://i-net-git-hub.vercel.app (HTTP 200)
+- NVIDIA NIM API key verified: google/gemma-4-31b-it returns vibe tags successfully
+- PHASE 0 COMPLETE ✅
 ```
 
 ---
@@ -134,13 +146,14 @@ Updated by:  Den
 **Goal:** All API routes working, Supabase schema operational
 
 ### Database
-- [ ] ⬜ `establishments` table created and seeded
-- [ ] ⬜ `sessions` table created
-- [ ] ⬜ `participants` table created
-- [ ] ⬜ `swipes` table created
-- [ ] ⬜ Realtime enabled on sessions, participants, swipes
-- [ ] ⬜ RLS policies applied (permissive for hackathon)
-- [ ] ⬜ Supabase client and server helpers created
+- [x] ✅ `establishments` table created and seeded (schema.sql + seed route + seed script) — 35 venues live
+- [x] ✅ `sessions` table created with card_stack (TEXT[]), filters (JSONB), status, matched_id columns
+- [x] ✅ `participants` table created with status and is_done columns
+- [x] ✅ `swipes` table created (schema.sql)
+- [x] ✅ Realtime enabled on sessions, participants, swipes (schema.sql §4)
+- [x] ✅ RLS policies applied — permissive for hackathon (schema.sql §3)
+- [x] ✅ Supabase client and server helpers created (lib/supabase/client.ts, lib/supabase/server.ts)
+- [x] ✅ Live DB schema fixed via Supabase Management API (establishments.id: UUID→TEXT, added missing columns)
 
 ### API Routes
 - [x] ✅ `POST /api/session` — create session, generate code (AYA-XXXX), build card stack
@@ -154,7 +167,7 @@ Updated by:  Den
 ### Session Logic (`lib/session/manager.ts`)
 - [x] ✅ `generateSessionCode()` — returns format "AYA-XXXX"
 - [x] ✅ `buildCardStack(context)` — filter establishments by budget/vibe/distance, randomize, limit to 18
-- [ ] ⬜ `checkAllDone(sessionId)` — return true if all participants have status 'done'
+- [x] ✅ `checkAllDone(sessionId)` — SQL function in schema.sql §5 (check_all_participants_done)
 
 ### Scoring (`lib/swipe/scorer.ts`)
 - [x] ✅ `scoreSwipe({ speed_ms, drag_distance })` — return enthusiasm score per swipe
