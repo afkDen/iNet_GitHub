@@ -7,7 +7,7 @@
 ## LAST UPDATED
 _Update this timestamp every time you check something off._
 ```
-Last update: 2026-05-13 21:25 PHT
+Last update: 2026-05-14 01:15 PHT
 Updated by:  Gemini CLI
 ```
 
@@ -18,7 +18,7 @@ Updated by:  Gemini CLI
 | Track | Owner | Status | % Done |
 |---|---|---|---|
 | SETUP | All | 🔄 | 80% |
-| FRONTEND | Frontend Lead | 🔄 | 35% |
+| FRONTEND | Frontend Lead | 🔄 | 50% |
 | BACKEND | Backend Lead | ⬜ | 0% |
 | AI | AI Lead | ⬜ | 0% |
 | INTEGRATION | Integration | ⬜ | 0% |
@@ -72,12 +72,12 @@ Updated by:  Gemini CLI
 **Goal:** All user-facing screens built and responsive on mobile
 
 ### Phase A — Onboarding (Kwentuhan)
-- [x] ✅ `/onboarding/page.tsx` — base layout, header, progress dots
-- [x] ✅ `ContextCards.tsx` — tappable choice tiles (outing type, group size, budget, distance)
-- [x] ✅ Mode selector tiles (Solo / Barkada / Lakbay) on first step
+- [x] ✅ `/onboarding/page.tsx` — base layout, header, progress dots, and Category Selector
+- [x] ✅ `ContextCards.tsx` — tappable choice tiles (budget, distance)
+- [x] ✅ Mode selector tiles (Solo / Barkada / Lakbay)
 - [x] ✅ Budget display with Filipino labels ("Grabe Tipid" → "Bahala Na")
-- [ ] ⬜ Natural language text input with placeholder
-- [ ] ⬜ "Surprise Me!" button (randomize all context, skip to swipe)
+- [x] ✅ Natural language text input with placeholder
+- [x] ✅ "Surprise Me!" button (randomize context, skip to solo swipe)
 - [x] ✅ "Next →" button advances through steps
 - [x] ✅ Smooth step transitions (Framer Motion `AnimatePresence`)
 - [x] ✅ State collected into `SessionContext` object (via SessionProvider)

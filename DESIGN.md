@@ -43,7 +43,7 @@ aya/
 │   ├── layout.tsx                  # Root layout, font, global styles
 │   ├── page.tsx                    # Redirect → /onboarding
 │   ├── onboarding/
-│   │   └── page.tsx                # Kwentuhan — context collection
+│   │   └── page.tsx                # Step 1: Outing Type Selector (Landing) & Controller
 │   ├── solo/
 │   │   └── page.tsx                # Solo swipe mode
 │   ├── barkada/
@@ -70,15 +70,14 @@ aya/
 │       └── match/
 │           └── route.ts            # Check for group match
 ├── components/
+│   ├── onboarding/
+│   │   └── OnboardingFlow.tsx      # Step 2+: Legacy multi-step flow (Mode, Budget, etc.)
 │   ├── ui/
-│   │   ├── OutingTypeSelector.tsx  # NEW: Food/Activities/Explore tiles (Landing)
-│   │   ├── SearchInput.tsx         # NEW: Natural language text input
 │   │   ├── ModeSelector.tsx        # Solo / Barkada / Lakbay tiles
 │   │   ├── SwipeCard.tsx           # Single establishment card + Framer
 │   │   ├── SwipeDeck.tsx           # Stack of cards, swipe logic
 │   │   ├── VibeBadge.tsx           # AI vibe tag pill component
 │   │   ├── BottomNav.tsx           # DISCOVER · PIN · HISTORY nav
-│   │   ├── ModeSelector.tsx        # Solo / Barkada / Lakbay tiles
 │   │   ├── ContextCards.tsx        # Onboarding tap tiles
 │   │   ├── SessionLobby.tsx        # Participant list + status dots
 │   │   ├── RevealScreen.tsx        # Animated match reveal
