@@ -1,7 +1,3 @@
-export type SessionMode = 'solo' | 'barkada' | 'lakbay';
-export type OutingType = 'food' | 'activities' | 'explore' | 'full_day';
-export type BudgetTier = 'tipid' | 'mid' | 'bahala_na';
-
 export type Establishment = {
     id: string;
     name: string;
@@ -26,10 +22,10 @@ export type Establishment = {
 };
 
 export type SessionContext = {
-    mode: SessionMode;
-    outing_type: OutingType;
+    mode: 'solo' | 'barkada' | 'lakbay';
+    outing_type: 'food' | 'activities' | 'explore' | 'full_day';
     group_size: number;
-    budget: BudgetTier;
+    budget: 'tipid' | 'mid' | 'bahala_na';
     distance_km: number;
     time_of_day: 'lunch' | 'merienda' | 'dinner' | 'anytime';
     natural_language?: string;
@@ -38,7 +34,7 @@ export type SessionContext = {
 export type Session = {
     id: string;
     code: string;
-    mode: SessionMode;
+    mode: 'solo' | 'barkada' | 'lakbay';
     status: 'active' | 'matched' | 'expired';
     context: SessionContext;
     matched_id?: string;
