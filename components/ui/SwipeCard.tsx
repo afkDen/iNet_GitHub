@@ -7,7 +7,7 @@ import Image from 'next/image';
 
 interface SwipeCardProps {
   establishment: any;
-  onSwipe: (direction: 'left' | 'right') => void;
+  onSwipe: (direction: 'left' | 'right', velocity: number, distance: number) => void;
   isTop: boolean;
 }
 
@@ -22,10 +22,12 @@ export default function SwipeCard({ establishment, onSwipe, isTop }: SwipeCardPr
   const noOpacity = useTransform(x, [-150, -50], [1, 0]);
 
   const handleDragEnd = (_: any, info: PanInfo) => {
+    const velocity = Math.abs(info.velocity.x);
+    const distance = Math.abs(info.offset.x);
     if (info.offset.x > 100) {
-      onSwipe('right');
+      onSwipe('right', velocity, distance);
     } else if (info.offset.x < -100) {
-      onSwipe('left');
+      onSwipe('left', velocity, distance);
     }
   };
 

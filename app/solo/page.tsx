@@ -1,27 +1,85 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import SwipeDeck from '@/components/ui/SwipeDeck';
 import BottomNav from '@/components/ui/BottomNav';
-import { MOCK_ESTABLISHMENTS } from '@/lib/data/mock';
 import { useSession } from '@/components/providers/SessionProvider';
+import { Establishment } from '@/types';
 
 export default function SoloSwipePage() {
   const router = useRouter();
-  const { context } = useSession();
+  const { context, sessionData, participant } = useSession();
+  const [stack, setStack] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleFinish = (results: any[]) => {
-    console.log('Swipe results:', results);
-    // In a real app, we'd save this to a session
-    router.push('/reveal');
+  useEffect(() => {
+    async function loadStack() {
+      if (!sessionData?.code) {
+        // If no session, go back to onboarding
+        router.replace('/onboarding');
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/session/${sessionData.code}`);
+        const data = await res.json();
+        
+        if (data.cardStack) {
+          // Map backend Establishment to UI format
+          const mapped = data.cardStack.map((e: Establishment) => ({
+            ...e,
+            photo: e.photo_url,
+            dist: '0.8 km', // Placeholder for now
+            cost: `₱${e.cost_min} - ₱${e.cost_max}`,
+            status: e.is_open ? 'Open' : 'Closed',
+            tags: e.vibe_tags
+          }));
+          setStack(mapped);
+        }
+      } catch (err) {
+        console.error('Failed to load card stack:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadStack();
+  }, [sessionData, router]);
+
+  const handleFinish = async (results: any[]) => {
+    if (!sessionData || !participant) return;
+
+    // Record all swipes in the backend
+    try {
+      await Promise.all(results.map(res => 
+        fetch('/api/swipe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            session_id: sessionData.id,
+            participant_id: participant.id,
+            establishment_id: res.id,
+            direction: res.direction,
+            speed_ms: 500, // Placeholder enthusiasm speed
+            drag_distance: res.distance
+          })
+        })
+      ));
+
+      // Mark participant as done
+      await fetch(`/api/participants/${participant.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'done' })
+      });
+
+      router.push('/reveal');
+    } catch (err) {
+      console.error('Failed to record results:', err);
+      router.push('/reveal'); // Go anyway for demo
+    }
   };
-
-  // Filter establishments based on context (Budget tier)
-  const filteredItems = MOCK_ESTABLISHMENTS.filter(item => {
-    if (context.budget === 'tipid') return item.cost === '₱' || item.cost === '₱₱';
-    if (context.budget === 'mid') return item.cost === '₱₱' || item.cost === '₱₱₱';
-    return true; // bahala_na includes everything
-  });
 
   return (
     <div className="flex flex-col flex-1 bg-aya-bg min-h-screen pb-24">
@@ -39,10 +97,14 @@ export default function SoloSwipePage() {
       </header>
 
       <main className="flex-1 flex flex-col items-center justify-center px-4">
-        <SwipeDeck 
-          items={filteredItems.length > 0 ? filteredItems : MOCK_ESTABLISHMENTS} 
-          onFinish={handleFinish} 
-        />
+        {loading ? (
+          <div className="text-aya-muted font-bold animate-pulse">Hinahanda ni Aya...</div>
+        ) : (
+          <SwipeDeck 
+            items={stack} 
+            onFinish={handleFinish} 
+          />
+        )}
       </main>
 
       <BottomNav />

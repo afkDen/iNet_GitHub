@@ -13,20 +13,47 @@ const STEPS = ['mode', 'type', 'budget', 'distance'];
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const { context, setContext } = useSession();
+  const { context, setContext, setSessionData, setParticipant } = useSession();
   const [currentStep, setCurrentStep] = useState(0);
+  const [loading, setLoading] = useState(false);
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep < STEPS.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      // Finalize and go to swipe
-      if (context.mode === 'solo') {
-        router.push('/solo');
-      } else if (context.mode === 'barkada') {
-        router.push('/barkada');
-      } else {
-        router.push('/lakbay');
+      setLoading(true);
+      try {
+        const res = await fetch('/api/session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ context })
+        });
+        const data = await res.json();
+        
+        if (data.session) {
+          setSessionData(data.session);
+          
+          // Join session as host
+          const joinRes = await fetch(`/api/session/${data.session.code}/join`, {
+             method: 'POST',
+             headers: { 'Content-Type': 'application/json' },
+             body: JSON.stringify({ nickname: 'Host' })
+          });
+          const joinData = await joinRes.json();
+          if (joinData.participant) setParticipant(joinData.participant);
+          
+          if (context.mode === 'solo') {
+            router.push('/solo');
+          } else if (context.mode === 'barkada') {
+            router.push('/barkada');
+          } else {
+            router.push('/lakbay');
+          }
+        }
+      } catch (err) {
+        console.error('Session creation failed:', err);
+      } finally {
+        setLoading(false);
       }
     }
   };

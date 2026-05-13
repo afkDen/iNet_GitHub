@@ -4,10 +4,26 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Users, Share2, ArrowRight, Sparkles } from 'lucide-react';
 import BottomNav from '@/components/ui/BottomNav';
+import { useSession } from '@/components/providers/SessionProvider';
 
 export default function BarkadaLobbyPage() {
   const router = useRouter();
-  const sessionCode = "AYA-" + Math.floor(1000 + Math.random() * 9000);
+  const { sessionData, participant } = useSession();
+  const sessionCode = sessionData?.code || 'AYA-JOIN';
+
+  const handleShare = () => {
+    const url = `${window.location.origin}/onboarding?join=${sessionCode}`;
+    if (navigator.share) {
+      navigator.share({
+        title: 'Aya — Bahala na si Aya',
+        text: `Join my barkada session on Aya: ${sessionCode}`,
+        url: url
+      }).catch(console.error);
+    } else {
+      navigator.clipboard.writeText(url);
+      alert('Link copied to clipboard!');
+    }
+  };
 
   return (
     <div className="flex flex-col flex-1 bg-aya-bg min-h-screen pb-24">
@@ -35,7 +51,10 @@ export default function BarkadaLobbyPage() {
           </div>
 
           <div className="flex gap-3">
-            <button className="flex-1 bg-aya-secondary text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all">
+            <button 
+              onClick={handleShare}
+              className="flex-1 bg-aya-secondary text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all"
+            >
               <Share2 size={20} />
               Share Link
             </button>
@@ -50,10 +69,10 @@ export default function BarkadaLobbyPage() {
           
           <div className="bg-white/50 p-4 rounded-2xl border-2 border-dashed border-aya-muted/20 flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-aya-primary text-white flex items-center justify-center font-black">
-              Y
+              {participant?.nickname?.charAt(0) || 'H'}
             </div>
             <div>
-              <p className="font-bold text-aya-secondary text-sm">You (Louise)</p>
+              <p className="font-bold text-aya-secondary text-sm">You ({participant?.nickname || 'Host'})</p>
               <p className="text-aya-muted text-[10px] uppercase font-bold tracking-widest">Host • Waiting...</p>
             </div>
           </div>

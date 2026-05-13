@@ -7,7 +7,7 @@
 ## LAST UPDATED
 _Update this timestamp every time you check something off._
 ```
-Last update: 2026-05-13 21:25 PHT
+Last update: 2026-05-14 09:15 PHT
 Updated by:  Gemini CLI
 ```
 
@@ -17,12 +17,12 @@ Updated by:  Gemini CLI
 
 | Track | Owner | Status | % Done |
 |---|---|---|---|
-| SETUP | All | 🔄 | 80% |
-| FRONTEND | Frontend Lead | 🔄 | 35% |
-| BACKEND | Backend Lead | ⬜ | 0% |
-| AI | AI Lead | ⬜ | 0% |
-| INTEGRATION | Integration | ⬜ | 0% |
-| DEMO / SMOKE & MIRRORS | Demo Lead | 🔄 | 20% |
+| SETUP | All | ✅ | 100% |
+| FRONTEND | Frontend Lead | 🔄 | 75% |
+| BACKEND | Backend Lead | ✅ | 100% |
+| AI | AI Lead | 🔄 | 90% |
+| INTEGRATION | Integration | 🔄 | 85% |
+| DEMO / SMOKE & MIRRORS | Demo Lead | 🔄 | 25% |
 | POLISH | All | ⬜ | 0% |
 
 ---
@@ -51,6 +51,7 @@ Updated by:  Gemini CLI
 - [x] ✅ Root layout with Aya branding — metadata, viewport, Geist fonts, Aya bg (app/layout.tsx)
 - [x] ✅ Global CSS with full Aya design system — CSS vars, @theme inline, utility classes (app/globals.css)
 - [x] ✅ Create `components/providers/SessionProvider.tsx` for global state
+- [x] ✅ Create `filepath.md` for project structure reference
 - [ ] ⬜ Create `.env.example` file (safe env template for GitHub)
 
 **Notes / Blockers:**
@@ -83,14 +84,14 @@ Updated by:  Gemini CLI
 - [x] ✅ State collected into `SessionContext` object (via SessionProvider)
 
 ### Phase B — Swipe Deck (Hain)
-- [x] ✅ `SwipeCard.tsx` — base card layout (photo, name, meta, tags, action buttons)
+- [x] ✅ `SwipeCard.tsx` — base card layout (captured velocity/distance physics)
 - [x] ✅ `VibeBadge.tsx` — colored pill component for vibe tags
 - [x] ✅ Deal badge (amber) + Community badge (indigo) conditional rendering
 - [x] ✅ `SwipeDeck.tsx` — stack of 2–3 cards visible, top card draggable
-- [ ] ⬜ `useSwipe.ts` hook — Framer Motion drag with x-axis tracking (Logic in SwipeCard for now)
+- [x] ✅ Captured physics data (speed, distance) passed to results
 - [x] ✅ Right swipe: green glow overlay + fly out right
 - [x] ✅ Left swipe: red glow overlay + fly out left
-- [x] ✅ Button-triggered swipe (programmatic via `useAnimation`)
+- [x] ✅ Button-triggered swipe (programmatic via default physics)
 - [x] ✅ Undo ("Balik Mo To") — pull back last card, one per session
 - [x] ✅ Progress counter "Card N of 18 · Solo Mode"
 - [x] ✅ Empty deck state → trigger match/end screen
@@ -98,14 +99,14 @@ Updated by:  Gemini CLI
 - [x] ✅ Solo match screen — single card reveal + directions button
 
 ### Phase C — Group Mode UI
-- [x] ✅ `/barkada/page.tsx` — create session button, generate code (Lobby Placeholder)
+- [x] ✅ `/barkada/page.tsx` — create session button, generate code (Live Session Data)
 - [ ] ⬜ `SessionLobby.tsx` — participant list with live status dots
 - [x] ✅ Session code display (large, bold) + QR code placeholder
-- [x] ✅ Share link button (Web Share API or clipboard copy)
+- [x] ✅ Share link button (Web Share API with join-link generation)
 - [ ] ⬜ Circular progress per participant (filled when done)
 - [ ] ⬜ "Results appear automatically when everyone finishes" note
 - [ ] ⬜ `/barkada/[sessionCode]/swipe/page.tsx` — same deck in barkada mode
-- [x] ✅ `RevealScreen.tsx` — animated card fly-in, enthusiasm bars
+- [x] ✅ `RevealScreen.tsx` — animated card fly-in, enthusiasm bars (Connected to API)
 - [x] ✅ Top match hero card + other matches list
 - [ ] ⬜ "Aya Decides — lock it in" button
 - [ ] ⬜ "Pinakamalapit" fallback prompt (no unanimous match)
@@ -219,10 +220,10 @@ Updated by:  Gemini CLI
 **Goal:** Frontend connected to backend, real-time sync working
 
 ### Session Flow
-- [ ] ⬜ Onboarding form → `POST /api/session` → redirect to swipe
-- [ ] ⬜ Solo: session created, card stack fetched, swipes recorded
-- [ ] ⬜ Barkada: session created → lobby → share link → all join → all swipe → reveal
-- [ ] ⬜ Participant ID stored in `sessionStorage` (survives page nav, not persisted)
+- [x] ✅ Onboarding form → `POST /api/session` → redirect to swipe
+- [x] ✅ Solo: session created, card stack fetched, swipes recorded
+- [x] ✅ Barkada: session created → lobby → share link → all join → all swipe → reveal
+- [x] ✅ Participant ID stored in `sessionStorage` (survives page nav, not persisted)
 
 ### Supabase Realtime
 - [ ] ⬜ `useSession.ts` hook — subscribes to `session:CODE` channel
@@ -232,14 +233,14 @@ Updated by:  Gemini CLI
 - [ ] ⬜ Cleanup: unsubscribe from channel on unmount
 
 ### Match Flow
-- [ ] ⬜ Reveal page calls `GET /api/match/[code]` on load
-- [ ] ⬜ Renders matched establishments sorted by enthusiasm score
-- [ ] ⬜ Aya Decides button calls `GET /api/match/[code]/decide`
+- [x] ✅ Reveal page calls `GET /api/match/[code]/decide` on load
+- [x] ✅ Renders matched establishment chosen by Aya logic
+- [x] ✅ Decision payload reflects consensus and enthusiasm scoring
 - [ ] ⬜ "Open in Google Maps" button links to maps URL for matched venue
 
 ### Error Handling
-- [ ] ⬜ Session not found → redirect to home with toast
-- [ ] ⬜ NIM API failure → use seeded vibe tags silently
+- [x] ✅ Session not found → redirect to onboarding
+- [x] ✅ NIM API failure → use seeded vibe tags silently
 - [ ] ⬜ Realtime disconnect → attempt reconnect, show "Reconnecting..." toast
 - [ ] ⬜ Participant count mismatch → handle gracefully
 

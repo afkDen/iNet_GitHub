@@ -1,15 +1,75 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import BottomNav from '@/components/ui/BottomNav';
-import { MOCK_ESTABLISHMENTS } from '@/lib/data/mock';
-import { MapPin, ExternalLink, Share2, Sparkles } from 'lucide-react';
+import { useSession } from '@/components/providers/SessionProvider';
+import { MapPin, ExternalLink, Share2, Sparkles, Loader2 } from 'lucide-react';
 
 export default function RevealPage() {
   const router = useRouter();
-  const winner = MOCK_ESTABLISHMENTS[1]; // Hardcoded for demo
+  const { sessionData } = useSession();
+  const [winner, setWinner] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function getDecision() {
+      if (!sessionData?.code) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/match/${sessionData.code}/decide`);
+        const data = await res.json();
+        if (data.decision?.establishment) {
+          const est = data.decision.establishment;
+          setWinner({
+            ...est,
+            photo: est.photo_url,
+            tags: est.vibe_tags
+          });
+        }
+      } catch (err) {
+        console.error('Failed to fetch decision:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    getDecision();
+  }, [sessionData]);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-aya-bg gap-4">
+        <Loader2 className="w-12 h-12 text-aya-primary animate-spin" />
+        <p className="text-aya-secondary font-black text-xl animate-pulse">Aya is deciding...</p>
+      </div>
+    );
+  }
+
+  if (!winner) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-aya-bg p-6 text-center gap-6">
+        <div className="bg-white p-6 rounded-full shadow-lg border-2 border-aya-muted/20">
+            <Sparkles className="text-aya-muted w-12 h-12" />
+        </div>
+        <div>
+            <h1 className="text-2xl font-black text-aya-secondary uppercase">Wala pa tayong match, beh.</h1>
+            <p className="text-aya-muted text-sm font-bold">Try swiping more or invite your friends!</p>
+        </div>
+        <button 
+            onClick={() => router.push('/onboarding')}
+            className="bg-aya-primary text-white font-black px-8 py-4 rounded-2xl shadow-lg"
+        >
+            Ulit tayo?
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col flex-1 bg-aya-bg min-h-screen pb-24">
@@ -40,12 +100,18 @@ export default function RevealPage() {
           className="w-full max-w-[350px] bg-white rounded-3xl shadow-2xl overflow-hidden border-4 border-white"
         >
           <div className="relative aspect-video">
-            <Image 
-              src={winner.photo} 
-              alt={winner.name}
-              fill
-              className="object-cover"
-            />
+            {winner.photo ? (
+              <Image 
+                src={winner.photo} 
+                alt={winner.name}
+                fill
+                className="object-cover"
+              />
+            ) : (
+                <div className="w-full h-full bg-aya-bg flex items-center justify-center">
+                    <Sparkles size={48} className="text-aya-muted opacity-20" />
+                </div>
+            )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             <div className="absolute bottom-4 left-4 text-white">
               <p className="text-[10px] font-bold uppercase tracking-widest opacity-80">{winner.category} • {winner.city}</p>

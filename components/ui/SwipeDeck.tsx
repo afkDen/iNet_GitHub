@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import SwipeCard from './SwipeCard';
 import { X, Heart, RotateCcw } from 'lucide-react';
@@ -13,18 +13,26 @@ interface SwipeDeckProps {
 export default function SwipeDeck({ items, onFinish }: SwipeDeckProps) {
   const [stack, setStack] = useState(items);
   const [history, setHistory] = useState<any[]>([]);
-  const [results, setResults] = useState<{ id: string; direction: 'left' | 'right' }[]>([]);
+  const [results, setResults] = useState<{ id: string; direction: 'left' | 'right'; velocity: number; distance: number }[]>([]);
 
-  const handleSwipe = useCallback((direction: 'left' | 'right') => {
+  // Update stack when items prop changes (e.g. after API fetch)
+  useEffect(() => {
+    setStack(items);
+  }, [items]);
+
+  const handleSwipe = useCallback((direction: 'left' | 'right', velocity: number = 500, distance: number = 150) => {
     const swipedItem = stack[0];
     if (!swipedItem) return;
 
-    setResults(prev => [...prev, { id: swipedItem.id, direction }]);
+    const result = { id: swipedItem.id, direction, velocity, distance };
+    const nextResults = [...results, result];
+
+    setResults(nextResults);
     setHistory(prev => [swipedItem, ...prev]);
     setStack(prev => prev.slice(1));
 
     if (stack.length === 1) {
-      onFinish([...results, { id: swipedItem.id, direction }]);
+      onFinish(nextResults);
     }
   }, [stack, results, onFinish]);
 
@@ -61,7 +69,7 @@ export default function SwipeDeck({ items, onFinish }: SwipeDeckProps) {
       {/* Control Buttons */}
       <div className="flex items-center gap-6">
         <button 
-          onClick={() => handleSwipe('left')}
+          onClick={() => handleSwipe('left', 200, 100)}
           disabled={stack.length === 0}
           className="p-4 rounded-full bg-white shadow-lg text-aya-swipe-no hover:scale-110 active:scale-90 transition-transform disabled:opacity-50"
         >
@@ -77,7 +85,7 @@ export default function SwipeDeck({ items, onFinish }: SwipeDeckProps) {
         </button>
 
         <button 
-          onClick={() => handleSwipe('right')}
+          onClick={() => handleSwipe('right', 800, 200)}
           disabled={stack.length === 0}
           className="p-4 rounded-full bg-aya-primary shadow-lg text-white hover:scale-110 active:scale-90 transition-transform disabled:opacity-50"
         >
