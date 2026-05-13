@@ -1,200 +1,191 @@
 # PROJECT INITIATION DOCUMENT (PID)
-## Aya — AI-Integrated Group Dining Decision App
-**Competition:** SIKAPTala 2026 — Ideathon: Software Development (Hackathon Track)
-**Team:** iNet
-**Institution:** De La Salle University – Dasmariñas
-**Date:** 2026
+## Aya — A Mobile-First AI-Integrated Web Application for Dining-Driven Decision Fatigue
+### Team: iNet | SIKAPTala 2026 | DLSU-D CICS {SG}
 
 ---
 
 ## 1. PROJECT OVERVIEW
 
-| Field | Detail |
+| Field | Details |
 |---|---|
 | **Project Name** | Aya |
-| **Tagline** | *"Bahala na si Aya."* — Your AI outing companion that ends the saan-tayo loop. |
-| **Type** | Mobile-first AI-integrated Progressive Web App (PWA) |
-| **Tech Classification** | Full-Stack Web App with Real-Time AI Recommendation Engine |
-| **Target Hackathon Duration** | 1 day (approx. 8–10 hours of active dev) |
-| **Demo Mode** | Yes — smoke & mirrors applied to complex/non-essential features |
+| **Team Name** | iNet |
+| **Competition** | SIKAPTala 2026 — IDEATHON: Software Development |
+| **Host Institution** | De La Salle University – Dasmariñas, CICS {SG} |
+| **Project Type** | Mobile-First Web Application |
+| **Primary Domain** | AI-Powered Local Discovery & Group Decision-Making |
+| **Target Market** | Filipino individuals, barkadas, families, couples, and local MSMEs |
+| **Dev Environment** | Roocode (Antigravity mode) |
+| **AI Model** | NVIDIA NIM Free API — Google Gemma4 31b-IT |
 
 ---
 
 ## 2. PROBLEM STATEMENT
 
-The question *"Saan tayo?"* triggers decision fatigue in Filipino group settings daily. Existing platforms (Google Maps, food delivery apps, Klook, TripAdvisor) are:
+The question *"Saan tayo?"* is a deeply embedded cultural frustration in Filipino daily life. Decision fatigue — the deterioration of decision quality after prolonged deliberation (Baumeister et al., 1998) — is compounded in group settings by social pressure, conflicting preferences, and platforms not built for collective decisions.
 
-- Built for single users, not groups
-- Designed for browsing, not deciding
-- Blind to local MSMEs and hidden gems
-- Incapable of reconciling multi-person preferences in real time
-
-Decision fatigue (Baumeister et al., 1998) combined with the paradox of choice (Schwartz, 2004) creates a cycle where groups default to familiar chains — costing local businesses customers who were already nearby and already looking.
-
-MSMEs represent **99.5% of all Philippine business establishments** (DTI, 2023) yet have near-zero digital discovery presence.
+Three failure modes of current tools:
+1. **Option Overload** — Google Maps returns hundreds of unfiltered results with no group-narrowing mechanism.
+2. **Single-User Design** — All major tools (Klook, TripAdvisor, delivery apps) are built for one person, not a group's convergence.
+3. **Local MSME Invisibility** — Community-embedded businesses are systematically underserved. MSMEs account for 99.5% of Philippine business establishments (DTI, 2023) yet most have zero digital discovery presence.
 
 ---
 
 ## 3. PROPOSED SOLUTION
 
-**Aya** is a mobile-first web application that eliminates group dining decision fatigue through:
-
-1. **Swipe-based discovery** — Tinder-style cards for restaurants/spots
-2. **Real-time group sessions** — Everyone swipes independently; Aya finds the match
-3. **AI vibe intelligence** — NVIDIA NIM (Gemma4 31b-IT) tags, filters, and resolves preferences
-4. **Local-first data** — Community pins surface hidden gems beyond corporate listings
-5. **Zero friction** — No download, no mandatory account, shareable session links
+**Aya** is a mobile-first, no-download web application that eliminates dining and outing decision fatigue through a swipe-based interface, real-time group sessions, and AI-powered recommendations — built and demo-ready for hackathon presentation.
 
 ---
 
-## 4. PROJECT SCOPE
+## 4. DEVELOPMENT STRATEGY — REAL vs SMOKE & MIRRORS
 
-### 4.1 In-Scope (Will Be Built)
-| Feature | Priority | Notes |
-|---|---|---|
-| Kwentuhan onboarding flow | P0 | Core UX — context collection |
-| Solo swipe mode | P0 | Core feature |
-| Barkada group session (Supabase Realtime) | P0 | Core differentiator |
-| AI vibe tag generation (NVIDIA NIM) | P0 | Key AI feature |
-| Match/reveal screen with animation | P0 | Demo moment |
-| Aya Decides tiebreaker | P1 | Behavioral scoring |
-| Session lobby (waiting room) | P1 | Group UX |
-| Balik Mo To (undo) | P1 | Simple UX |
-| Basic session history | P2 | Nice-to-have |
+> This project is built for a hackathon. The strategy is to build the **core experience flawlessly** and **simulate peripheral features convincingly**. Judges evaluate concept, demo, and polish — not production completeness.
 
-### 4.2 Out-of-Scope / Smoke & Mirrors (Faked for Demo)
-| Feature | Approach | Notes |
-|---|---|---|
-| Lakbay/Itinerary mode | Hardcoded itinerary cards | AI-composed look, static data |
-| Local Business Listing Portal | Static UI only | Form renders, no backend save |
-| Drop a Pin (community pin) | UI + fake success state | No real verification queue |
-| Lokal Intel verification queue | Admin UI mockup only | Not wired |
-| Aya Memory (adaptive learning) | Fake persistence via localStorage | No real ML |
-| Real-time deals badge | Hardcoded deal data in seed | No business backend |
-| MSME verification system | Not built | Not shown in demo |
-| Admin dashboard | Not built | Not shown in demo |
+### ✅ ACTUALLY BUILT (Real Implementation)
 
-> See `SMOKE_AND_MIRRORS.md` for full deception architecture.
+| Feature | Justification |
+|---|---|
+| Swipe Deck (Solo Mode) | THE centerpiece — judges will interact with this directly |
+| Kwentuhan Onboarding (tiles + NLP) | First impression; must feel polished |
+| NVIDIA NIM — Vibe Tag Generation | Visible AI; differentiating in demo |
+| NVIDIA NIM — NLP Filter Parsing | Powers the "type in Filipino" path |
+| Supabase Realtime — Barkada Group Session | Live multi-device sync is the showstopper moment |
+| Group Reveal + Aya Decides | Emotional payoff of the whole demo |
+| Venue Data (Google Places or Mock JSON) | Cards need real-looking data |
+| Match Detection Logic | Core algorithm — must be correct |
+| Session Code Generate / Join | Required for live group demo |
+| Framer Motion Swipe Animations | Makes or breaks first impression |
+| Balik Mo To (undo) | Small but memorable UX detail |
 
----
+### 🎭 SMOKE & MIRRORS (Faked / Simulated)
 
-## 5. TEAM ROLES & DELEGATION
-
-| Role | Responsibility | Track in PROGRESS.md |
-|---|---|---|
-| **Frontend Lead** | Swipe UI, onboarding, animations (Framer Motion) | FRONTEND |
-| **Backend Lead** | Supabase schema, API routes, session logic | BACKEND |
-| **AI/Integration Lead** | NVIDIA NIM API, vibe tag engine, Aya Decides | AI |
-| **Full Stack / Glue** | Connecting frontend to backend, realtime hooks | INTEGRATION |
-| **Polish / Demo Lead** | Smoke & mirrors features, seed data, demo flow | DEMO |
-
-> Adjust based on actual team size. In a 3-person team: Frontend Lead covers FRONTEND + DEMO, Backend Lead covers BACKEND + INTEGRATION, AI Lead covers AI.
+| Feature | Strategy |
+|---|---|
+| **Lakbay / Itinerary Mode** | 4 hardcoded JSON itinerary presets. AI "selects" the best one based on filter keywords. Renders full timeline UI with map. Looks generated; is a lookup. |
+| **MSME / Suking Spot Portal** | Full form UI. On submit → writes row to `msme_listings` with `status: 'pending'`. Shows "Submitted for review! We'll be in touch." Never activates. |
+| **Drop a Pin / Lokal Intel** | Full form UI + map. On submit → writes to `community_pins` with `status: 'pending'`. Never surfaces in deck. Demo deck has pre-seeded pins already marked approved. |
+| **Aya Memory** | Saves liked venue IDs to `localStorage`. On next session, passes them as a "previously liked" hint string to the AI vibe tag prompt. Feels adaptive; is just localStorage. |
+| **Admin Dashboard** | Static UI with 5 hardcoded fake pending pins + 3 fake MSME submissions. Approve/reject buttons fire toasts only. Not wired to real DB. |
+| **Community Confirmation Count** | "47 locals confirmed this spot" badge on pre-seeded demo venues — hardcoded number in the seed data. |
+| **Session Data Purge** | Cleanup function exists and can be triggered manually. Not automatically called in demo build. |
 
 ---
 
-## 6. TECH STACK
+## 5. OBJECTIVES
 
-| Layer | Technology | Reason |
+### General Objective
+Deliver a compelling, polished demo of Aya that convincingly demonstrates the core swipe loop, real-time group decision-making, and AI-powered local discovery — sufficient to score strongly across all four judging criteria.
+
+### Specific Objectives
+
+| # | Objective | Real/Faked | Metric |
+|---|---|---|---|
+| SO-01 | Swipe deck with AI vibe tags | ✅ Real | Cards swipe, tags visible, NVIDIA NIM called |
+| SO-02 | Kwentuhan onboarding (tiles + NLP) | ✅ Real | Both paths produce filter set; NLP handles Filipino |
+| SO-03 | Barkada Mode real-time sync | ✅ Real | 2+ devices in same session sync live |
+| SO-04 | Group reveal + Aya Decides | ✅ Real | Correct match + animated reveal |
+| SO-05 | Lakbay itinerary screen | 🎭 Faked | Preset renders convincingly as AI-generated plan |
+| SO-06 | MSME portal submits without error | 🎭 Faked | Form completes; success state shows |
+| SO-07 | Drop a Pin submits without error | 🎭 Faked | Form completes; success state shows |
+| SO-08 | Deployed public URL | ✅ Real | Live on Vercel, accessible on mobile |
+
+---
+
+## 6. SCOPE
+
+### In-Scope (MVP)
+- Kwentuhan onboarding (tappable cards + NLP)
+- Solo Mode swipe deck with AI vibe tags
+- Barkada Mode with Supabase Realtime sync
+- Group reveal + Aya Decides tiebreaker
+- Lakbay Mode (hardcoded itinerary presets)
+- Drop a Pin UI (form → pending)
+- Suking Spot / MSME Portal (form → pending)
+- Session history (localStorage-based)
+- Balik Mo To single undo
+- Public Vercel deployment
+
+### Out-of-Scope
+- Real admin moderation workflows
+- Native iOS/Android app
+- In-app payments or reservations
+- Real community pin verification pipeline
+- Production-grade ML for Aya Memory
+
+---
+
+## 7. TECHNOLOGY STACK
+
+| Layer | Technology | Notes |
 |---|---|---|
-| **Framework** | Next.js 14 (App Router) + TypeScript | Fast SSR, API routes, Vercel-native |
-| **Styling** | Tailwind CSS | Rapid mobile-first UI |
-| **Animations** | Framer Motion | Swipe gestures, card transitions |
-| **Backend/DB** | Supabase (PostgreSQL + Realtime) | WebSocket sessions, anonymous auth |
-| **AI Engine** | NVIDIA NIM API (Gemma4 31b-IT model) | Free tier, OpenAI-compatible |
-| **Maps (fake)** | Leaflet.js + OpenStreetMap | Used in Lakbay mockup only |
-| **Places Data** | Seeded mock data (Google Places shape) | Avoids API billing during hackathon |
-| **Deployment** | Vercel | Instant deploy, Next.js native |
-| **Version Control** | GitHub | Collaboration |
+| **IDE / AI Coding** | Roocode (Antigravity mode) | Primary dev tool; all prompts written for this context |
+| **Framework** | Next.js 14 (App Router) | SSR + API Routes for server-side key isolation |
+| **Language** | TypeScript | Type safety throughout |
+| **Styling** | Tailwind CSS | Mobile-first utility styling |
+| **Animations** | Framer Motion | Swipe gestures, card physics, reveal sequence |
+| **Database** | Supabase (PostgreSQL) | Sessions, participants, venue cache, pins, MSME |
+| **Realtime** | Supabase Realtime | WebSocket group session sync |
+| **Auth** | Supabase Auth (Anonymous) | No account required for core flow |
+| **AI** | NVIDIA NIM API (Free) — Gemma4 31b-IT | Vibe tags + NLP filter parsing |
+| **Maps Data** | Google Places API + Mock JSON fallback | Venue cards; mock if quota hit |
+| **Map Render** | Leaflet.js + OpenStreetMap | Itinerary map (Lakbay screen) |
+| **Deployment** | Vercel | CI/CD from GitHub |
+| **Version Control** | GitHub | Source control |
 
-### NVIDIA NIM API Details
+### NVIDIA NIM API Config
+
 ```
-Base URL:  https://integrate.api.nvidia.com/v1
-Endpoint:  /chat/completions
-Model:     google/gemma-3-27b-it  (check NIM dashboard for exact Gemma4 31b slug)
-Auth:      Bearer {NVIDIA_API_KEY}
-Format:    OpenAI-compatible
-```
-> Check https://build.nvidia.com/explore/discover for current model slugs. The proposal references "Gemma4 31b-IT" — map to the closest available on your NIM account.
-
----
-
-## 7. ENVIRONMENT VARIABLES REQUIRED
-
-```env
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
-
-# NVIDIA NIM
-NVIDIA_API_KEY=
-NVIDIA_NIM_MODEL=google/gemma-3-27b-it
-
-# App
-NEXT_PUBLIC_APP_URL=http://localhost:3000
+Base URL : https://integrate.api.nvidia.com/v1
+Model    : google/gemma-4-31b-it
+Auth     : Bearer ${NVIDIA_NIM_API_KEY}
+Protocol : OpenAI-compatible (use openai npm package or direct fetch)
+Tier     : Free — rate-limit aware; cache ALL responses aggressively
 ```
 
----
-
-## 8. SUCCESS CRITERIA (HACKATHON)
-
-The project is considered demo-ready when:
-
-- [ ] A judge can open the app on their phone via a shared URL
-- [ ] Solo mode shows swipeable cards with AI vibe tags
-- [ ] Barkada mode creates a session, shares a code, and two devices can swipe independently
-- [ ] A match screen appears with animation after both devices finish
-- [ ] "Aya Decides" button resolves a tie
-- [ ] Lakbay (itinerary) mode shows a convincing hardcoded full-day plan
-- [ ] Drop a Pin shows a form with a fake success state
-- [ ] App does not crash during a 5-minute demo
+> **Critical for Demo:** Pre-generate and cache vibe tags for all demo venues before the presentation. Do not rely on live NVIDIA NIM calls during the demo — store results in Supabase `venues.vibe_tags` at seed time.
 
 ---
 
-## 9. RISK REGISTER
+## 8. RISKS AND MITIGATIONS
 
-| Risk | Likelihood | Mitigation |
+| Risk | Impact | Mitigation |
 |---|---|---|
-| NVIDIA NIM rate limit during demo | Medium | Cache responses, pre-generate tags at seed time |
-| Supabase Realtime drops connection | Low | Add reconnection logic, test on mobile data |
-| WebSocket sync fails across different networks | Medium | Demo on same WiFi; fallback to polling |
-| Swipe animations jank on judge's device | Medium | Test on mid-range Android, reduce particle effects |
-| Google Places API billing | High | Use seeded mock data instead — not real API |
-| Time runs out before group mode is wired | Medium | Solo mode must always be fully working |
+| NVIDIA NIM rate limit during demo | High | Pre-cache all vibe tags at seed time; AI only called for NLP onboarding live |
+| Google Places quota hit | High | `mock_venues.json` with 40 Metro Manila venues as fallback; swap by env flag |
+| Supabase Realtime drops mid-demo | High | Auto-reconnect logic; `DEMO_SESSION` pre-created with known state |
+| Smoke & mirrors features look broken | High | Prioritize UI completeness on fake features — they must look more finished than real ones |
+| Scope creep | Medium | Feature freeze after Phase 4; extras only if Phase 6 time allows |
 
 ---
 
-## 10. JUDGING CRITERIA ALIGNMENT
+## 9. DEVELOPMENT PHASES
 
-| Criterion | Weight | Our Strategy |
-|---|---|---|
-| **Concept** (depth, originality, system structure) | 40% | Stress real-time multi-user swipe sync + AI tiebreaker in pitch |
-| **Societal & Practical Impact** | 20% | DTI MSME stat (99.5%), SDG 11 alignment, local gem discovery angle |
-| **Theme Alignment** | 20% | Directly addresses hackathon innovation theme via AI + community |
-| **Presentation & Communication** | 20% | Clean demo flow, Filipino-language UI copy, polished mockups |
-
----
-
-## 11. TIMELINE (HACKATHON DAY)
-
-| Time Block | Tasks | Owner |
-|---|---|---|
-| 00:00 – 00:30 | Project setup, env vars, Supabase project, GitHub init | Backend Lead |
-| 00:30 – 01:00 | DB schema + seed data, NVIDIA NIM test call | AI Lead |
-| 01:00 – 02:30 | Kwentuhan onboarding + Solo swipe deck | Frontend Lead |
-| 02:30 – 04:00 | Barkada session manager + Supabase Realtime | Backend + Integration |
-| 04:00 – 05:00 | AI vibe tag API route + card integration | AI Lead |
-| 05:00 – 06:00 | Match/reveal screen + Aya Decides | Frontend + Integration |
-| 06:00 – 07:00 | Smoke & mirrors: Lakbay, Drop a Pin, History | Demo Lead |
-| 07:00 – 08:00 | Polish, Framer Motion, mobile testing, seed data | All |
-| 08:00 – 09:00 | Buffer / deployment / demo rehearsal | All |
+| Phase | Name | Key Deliverables | Type |
+|---|---|---|---|
+| **0** | Setup & Scaffolding | Repo, Next.js 14, Supabase, env, Tailwind, Framer Motion, mock data | Real |
+| **1** | Data & AI Layer | DB schema, venue seed, Google Places wrapper, NVIDIA NIM client | Real |
+| **2** | Onboarding | Kwentuhan tiles, NLP path, filter state | Real |
+| **3** | Solo Mode | Card generation, swipe deck, vibe tags, match screen, undo | Real |
+| **4** | Barkada Mode | Session create/join, Realtime sync, lobby, reveal, Aya Decides | Real |
+| **5** | Smoke Features | Lakbay presets, MSME portal, Drop a Pin, Aya Memory localStorage | Smoke |
+| **6** | Polish | Animations, mobile UX, toasts, demo data, loading states | Real |
+| **7** | Deploy | Vercel, env vars, smoke test, PROGRESS.md final | Real |
 
 ---
 
-## 12. REFERENCES
+## 10. SUCCESS CRITERIA (Competition-Ready)
 
-- Baumeister et al. (1998). Ego depletion. *Journal of Personality and Social Psychology.*
-- Chu et al. (2024). Decision fatigue in food/leisure markets. *Sustainability.*
-- DTI (2023). *2023 Philippine MSME Statistics.*
-- Lubos et al. (2025). LLM-Enhanced group recommender systems. *arXiv.*
-- Schwartz (2004). *The Paradox of Choice.*
+- [ ] App loads < 3s on mobile browser
+- [ ] Solo Mode swipe deck works end-to-end on 375px viewport
+- [ ] Barkada Mode syncs live across 2+ real devices
+- [ ] AI vibe tags appear on cards (NVIDIA NIM cached)
+- [ ] NLP onboarding correctly parses a Filipino sentence live
+- [ ] Group match reveal fires with full animation sequence
+- [ ] Lakbay itinerary screen renders a convincing full-day plan
+- [ ] MSME and Drop a Pin forms complete without errors
+- [ ] Public Vercel URL accessible from any mobile browser
+- [ ] All 8 mockup screens are represented in the live app
+
+---
+
+*Document Version: 2.0 | Roocode + NVIDIA NIM build | Team iNet — SIKAPTala 2026*
