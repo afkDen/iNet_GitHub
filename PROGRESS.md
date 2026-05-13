@@ -146,9 +146,9 @@ Updated by:  Den
 - [x] ✅ `POST /api/session` — create session, generate code (AYA-XXXX), build card stack
 - [x] ✅ `GET /api/session/[code]` — fetch session + card stack establishments
 - [x] ✅ `POST /api/session/[code]/join` — create participant record, return participant ID
-- [ ] ⬜ `POST /api/swipe` — insert swipe record `{ session_id, participant_id, establishment_id, direction, speed_ms, drag_distance }`
-- [ ] ⬜ `GET /api/match/[code]` — compute overlap of right swipes, return sorted matches
-- [ ] ⬜ `GET /api/match/[code]/decide` — Aya Decides scoring, return top pick
+- [x] ✅ `POST /api/swipe` — insert swipe record `{ session_id, participant_id, establishment_id, direction, speed_ms, drag_distance }`
+- [x] ✅ `GET /api/match/[code]` — compute overlap of right swipes, return sorted matches
+- [x] ✅ `GET /api/match/[code]/decide` — Aya Decides scoring, return top pick
 - [x] ✅ `PATCH /api/participants/[id]` — update participant status (done)
 
 ### Session Logic (`lib/session/manager.ts`)
@@ -157,9 +157,9 @@ Updated by:  Den
 - [ ] ⬜ `checkAllDone(sessionId)` — return true if all participants have status 'done'
 
 ### Scoring (`lib/swipe/scorer.ts`)
-- [ ] ⬜ `scoreSwipe({ speed_ms, drag_distance })` — return enthusiasm score per swipe
-- [ ] ⬜ `computeMatch(swipes[])` — find shared right-swipes, rank by enthusiasm
-- [ ] ⬜ `ayaDecides(matches[])` — return single top pick
+- [x] ✅ `scoreSwipe({ speed_ms, drag_distance })` — return enthusiasm score per swipe
+- [x] ✅ `computeMatch(swipes[])` — find shared right-swipes, rank by enthusiasm
+- [x] ✅ `ayaDecides(matches[])` — return single top pick
 
 **Notes / Blockers:**
 ```
