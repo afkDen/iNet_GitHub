@@ -126,7 +126,13 @@ export default function SwipeCard({
                     />
                 ) : (
                     <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-5xl">🍽️</span>
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#9E9E9E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
+                            <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
+                            <line x1="6" y1="1" x2="6" y2="4" />
+                            <line x1="10" y1="1" x2="10" y2="4" />
+                            <line x1="14" y1="1" x2="14" y2="4" />
+                        </svg>
                     </div>
                 )}
             </div>
@@ -146,7 +152,13 @@ export default function SwipeCard({
 
                 {/* Meta row: distance · cost · open status */}
                 <div className="flex items-center gap-2 text-xs text-[#6B6B6B] mb-3">
-                    <span>📍 {context.distance_km}km</span>
+                    <span className="inline-flex items-center gap-1">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                            <circle cx="12" cy="10" r="3" />
+                        </svg>
+                        {context.distance_km}km
+                    </span>
                     <span>·</span>
                     <span>
                         ~₱{establishment.cost_min}
@@ -188,16 +200,26 @@ export default function SwipeCard({
 
                 {/* Community note */}
                 {establishment.is_community_pin && establishment.community_confirms > 0 && (
-                    <p className="text-xs text-indigo-700 font-medium mb-3">
-                        👥 {establishment.community_confirms} community confirmation
+                    <p className="text-xs text-indigo-700 font-medium mb-3 inline-flex items-center gap-1">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                        </svg>
+                        {establishment.community_confirms} community confirmation
                         {establishment.community_confirms > 1 ? 's' : ''}
                     </p>
                 )}
 
                 {/* Deal text */}
                 {establishment.is_deal && establishment.deal_text && (
-                    <p className="text-xs text-amber-700 font-medium mb-3">
-                        🏷️ {establishment.deal_text}
+                    <p className="text-xs text-amber-700 font-medium mb-3 inline-flex items-center gap-1">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+                            <line x1="7" y1="7" x2="7.01" y2="7" />
+                        </svg>
+                        {establishment.deal_text}
                     </p>
                 )}
             </div>
@@ -217,7 +239,10 @@ export default function SwipeCard({
                     aria-label="Skip"
                     disabled={!isTop}
                 >
-                    ✕
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
                 </button>
 
                 {/* Undo (↩) */}
@@ -234,7 +259,10 @@ export default function SwipeCard({
                     aria-label="Undo"
                     disabled={!hasUndo}
                 >
-                    ↩
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="1 4 1 10 7 10" />
+                        <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+                    </svg>
                 </button>
 
                 {/* Like (✓) */}
@@ -250,7 +278,9 @@ export default function SwipeCard({
                     aria-label="Like"
                     disabled={!isTop}
                 >
-                    ✓
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12" />
+                    </svg>
                 </button>
             </div>
 

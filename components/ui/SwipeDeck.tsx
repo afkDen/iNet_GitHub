@@ -178,7 +178,12 @@ export default function SwipeDeck({
     if (!currentEstablishment && currentIndex >= totalCards) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 px-6">
-                <span className="text-6xl">🎉</span>
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#E8622A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+                    <line x1="9" y1="9" x2="9.01" y2="9" />
+                    <line x1="15" y1="9" x2="15.01" y2="9" />
+                </svg>
                 <h2 className="text-xl font-bold text-[#1A1A1A] text-center">
                     Wala nang cards!
                 </h2>
@@ -256,7 +261,10 @@ export default function SwipeDeck({
                     className="mt-4 px-6 py-2.5 rounded-full bg-[#E8622A] text-white text-sm font-semibold shadow-lg hover:bg-[#D4551E] active:scale-95 transition-transform"
                     onClick={handleAyaDecides}
                 >
-                    ✨ Aya Decides
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="inline-block mr-1.5">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
+                    Aya Decides
                 </motion.button>
             )}
         </div>
