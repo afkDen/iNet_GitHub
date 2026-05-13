@@ -7,7 +7,7 @@
 ## LAST UPDATED
 _Update this timestamp every time you check something off._
 ```
-Last update: 2026-05-14 02:42 PHT
+Last update: 2026-05-14 03:32 PHT
 Updated by:  Den
 ```
 
@@ -18,7 +18,7 @@ Updated by:  Den
 | Track | Owner | Status | % Done |
 |---|---|---|---|
 | SETUP | All | ✅ | 100% |
-| FRONTEND | Frontend Lead | 🔄 | 5% |
+| FRONTEND | Frontend Lead | 🔄 | 25% |
 | BACKEND | Backend Lead | 🔄 | 50% |
 | AI | AI Lead | 🔄 | 80% |
 | INTEGRATION | Integration | ⬜ | 0% |
@@ -83,15 +83,15 @@ Updated by:  Den
 **Goal:** All user-facing screens built and responsive on mobile
 
 ### Phase A — Onboarding (Kwentuhan)
-- [ ] ⬜ `/onboarding/page.tsx` — base layout, header, progress dots
-- [ ] ⬜ `ContextCards.tsx` — tappable choice tiles (outing type, group size, budget, distance)
-- [ ] ⬜ Mode selector tiles (Solo / Barkada / Lakbay) on first step
-- [ ] ⬜ Budget display with Filipino labels ("Grabe Tipid" → "Bahala Na")
-- [ ] ⬜ Natural language text input with placeholder
-- [ ] ⬜ "Surprise Me!" button (randomize all context, skip to swipe)
-- [ ] ⬜ "Next →" button advances through steps
-- [ ] ⬜ Smooth step transitions (Framer Motion `AnimatePresence`)
-- [ ] ⬜ State collected into `SessionContext` object
+- [x] ✅ `/onboarding/page.tsx` — base layout, header, progress dots
+- [x] ✅ `ContextCards.tsx` — tappable choice tiles (outing type, group size, budget, distance)
+- [x] ✅ Mode selector tiles (Solo / Barkada / Lakbay) on first step
+- [x] ✅ Budget display with Filipino labels ("Grabe Tipid" → "Bahala Na")
+- [x] ✅ Natural language text input with placeholder
+- [x] ✅ "Surprise Me!" button (randomize all context, skip to swipe)
+- [x] ✅ "Next →" button advances through steps
+- [x] ✅ Smooth step transitions (Framer Motion `AnimatePresence`)
+- [x] ✅ State collected into `SessionContext` object
 
 ### Phase B — Swipe Deck (Hain)
 - [ ] ⬜ `SwipeCard.tsx` — base card layout (photo, name, meta, tags, action buttons)
@@ -134,7 +134,10 @@ Updated by:  Den
 
 **Notes / Blockers:**
 ```
-[add notes here]
+- Onboarding (Kwentuhan) Phase A complete: app/onboarding/page.tsx with 4-step flow, Framer Motion transitions, SessionContext state management
+- app/page.tsx now redirects to /onboarding
+- Activities tile deprecated per user feedback — 3 tiles (Food & Drinks, Explore, Full Day) in 2x2 grid
+- All 9 Phase A tasks marked ✅
 ```
 
 ---
