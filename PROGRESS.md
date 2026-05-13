@@ -7,8 +7,8 @@
 ## LAST UPDATED
 _Update this timestamp every time you check something off._
 ```
-Last update: [FILL IN]
-Updated by:  [NAME]
+Last update: 2026-05-13 20:34 PHT
+Updated by:  Den
 ```
 
 ---
@@ -17,8 +17,8 @@ Updated by:  [NAME]
 
 | Track | Owner | Status | % Done |
 |---|---|---|---|
-| SETUP | All | ⬜ | 0% |
-| FRONTEND | Frontend Lead | ⬜ | 0% |
+| SETUP | All | 🔄 | 65% |
+| FRONTEND | Frontend Lead | 🔄 | 5% |
 | BACKEND | Backend Lead | ⬜ | 0% |
 | AI | AI Lead | ⬜ | 0% |
 | INTEGRATION | Integration | ⬜ | 0% |
@@ -34,23 +34,32 @@ Updated by:  [NAME]
 **Goal:** Working Next.js app connected to Supabase and NVIDIA NIM by T+30min
 
 ### Tasks
-- [ ] ⬜ Initialize Next.js 14 app with TypeScript (`npx create-next-app@latest aya --typescript --tailwind --app --src-dir`)
-- [ ] ⬜ Install all dependencies (see DESIGN.md §11)
-- [ ] ⬜ Create `.env.local` with all environment variables (see PID.md §7)
-- [ ] ⬜ Create Supabase project at supabase.com
-- [ ] ⬜ Run full schema SQL in Supabase SQL editor (see DESIGN.md §3.1)
-- [ ] ⬜ Seed 30+ mock establishments (see BUILD_GUIDE.md Phase 2)
+- [x] ✅ Initialize Next.js app with TypeScript (Next.js 16, React 19, Tailwind v4)
+- [x] ✅ Install all dependencies (see package.json — all deps present)
+- [x] ✅ Create `.env.local` with all environment variables (Supabase URL, anon key, service role key, NVIDIA API key, model slug)
+- [x] ✅ Create Supabase project at supabase.com (qafyayulkmlixodjnnbc.supabase.co)
+- [x] ✅ Run full schema SQL in Supabase SQL editor (see DESIGN.md §3.1)
+- [ ] ⬜ Create `lib/supabase/schema.sql` file locally for version control
+- [x] ✅ Seed 30+ mock establishments (lib/data/establishments.ts)
 - [ ] ⬜ Test Supabase connection from Next.js
-- [ ] ⬜ Create GitHub repo and push initial commit
+- [x] ✅ Create GitHub repo and push initial commit (https://github.com/afkDen/iNet_GitHub)
 - [ ] ⬜ Connect repo to Vercel for continuous deployment
 - [ ] ⬜ Verify NVIDIA NIM API key works (test call in BUILD_GUIDE.md Phase 3)
-- [ ] ⬜ Create `lib/supabase/client.ts` and `lib/supabase/server.ts`
-- [ ] ⬜ Create global types in `types/index.ts`
-- [ ] ⬜ Configure Tailwind with Aya design tokens (see DESIGN.md §7.1)
+- [x] ✅ Create `lib/supabase/client.ts` and `lib/supabase/server.ts`
+- [x] ✅ Create global types in `types/index.ts`
+- [x] ✅ Configure Tailwind with Aya design tokens (see DESIGN.md §7.1)
+- [x] ✅ Root layout with Aya branding — metadata, viewport, Geist fonts, Aya bg (app/layout.tsx)
+- [x] ✅ Global CSS with full Aya design system — CSS vars, @theme inline, utility classes (app/globals.css)
+- [ ] ⬜ Create `.env.example` file (safe env template for GitHub)
 
 **Notes / Blockers:**
 ```
-[add notes here]
+- Next.js 16 (not 14), React 19 (not 18), Tailwind v4 (not v3) — newer versions than DESIGN.md specifies
+- Supabase project is live and accessible
+- All API keys present in .env.local
+- DB schema has been executed in Supabase SQL editor (no local .sql file yet)
+- app/page.tsx still has Next.js boilerplate — needs redirect to /onboarding per DESIGN.md
+- No .env.example file yet (mentioned in DESIGN.md §2)
 ```
 
 ---
@@ -238,7 +247,7 @@ Updated by:  [NAME]
 **Goal:** All fake features look convincing for a 5-minute judge demo
 
 ### Lakbay (Itinerary Mode) — HARDCODED
-- [ ] ⬜ `lib/data/itineraries.ts` — 3–5 complete hardcoded itinerary objects
+- [x] ✅ `lib/data/itineraries.ts` — 5 complete hardcoded itinerary objects
 - [ ] ⬜ Each itinerary: 3 stops (lunch, activity, merienda/dinner), times, costs, transport
 - [ ] ⬜ `/lakbay/page.tsx` — shows Kwentuhan flow, then fake AI loading screen (3 sec)
 - [ ] ⬜ `ItineraryCard.tsx` — expanded timeline with stop cards, map thumbnail
@@ -274,11 +283,11 @@ Updated by:  [NAME]
 - [ ] ⬜ Visual showing preferred categories (hardcoded after first real session)
 
 ### Demo Data Preparation
-- [ ] ⬜ 30+ seeded establishments (mix of carinderia, cafe, activity, bar)
-- [ ] ⬜ 3 establishments with `is_deal: true` and deal text
-- [ ] ⬜ 5 establishments with `is_community_pin: true`
+- [x] ✅ 36 seeded establishments (restaurant:10, cafe:8, carinderia:6, activity:5, bar:4, bakery:2, +1 extra)
+- [x] ✅ 4 establishments with `is_deal: true` and deal text
+- [x] ✅ 5 establishments with `is_community_pin: true`
 - [ ] ⬜ Placeholder venue photos (download 30 food images to `/public/images/`)
-- [ ] ⬜ At least 3 hardcoded itineraries covering: budget, mid, bahala-na budgets
+- [x] ✅ 5 hardcoded itineraries covering: budget, mid, bahala-na budgets
 - [ ] ⬜ Demo session pre-created with code "AYA-DEMO" if needed for offline demo
 
 **Notes / Blockers:**

@@ -3,6 +3,18 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Aya Design Tokens */
+  --aya-bg: #F5F0E8;
+  --aya-surface: #FFFFFF;
+  --aya-primary: #E85D26;
+  --aya-secondary: #1A1A1A;
+  --aya-accent: #F4A261;
+  --aya-muted: #9B9082;
+  --aya-swipe-yes: #22C55E;
+  --aya-swipe-no: #EF4444;
+  --aya-community: #6366F1;
+  --aya-deal: #F59E0B;
 }
 
 @theme inline {
@@ -10,6 +22,17 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  --color-aya-bg: var(--aya-bg);
+  --color-aya-surface: var(--aya-surface);
+  --color-aya-primary: var(--aya-primary);
+  --color-aya-secondary: var(--aya-secondary);
+  --color-aya-accent: var(--aya-accent);
+  --color-aya-muted: var(--aya-muted);
+  --color-aya-swipe-yes: var(--aya-swipe-yes);
+  --color-aya-swipe-no: var(--aya-swipe-no);
+  --color-aya-community: var(--aya-community);
+  --color-aya-deal: var(--aya-deal);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -20,7 +43,21 @@
 }
 
 body {
-  background: var(--background);
+  background: var(--aya-bg);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer components {
+  .aya-card {
+    @apply rounded-2xl shadow-lg bg-white overflow-hidden;
+  }
+
+  .aya-badge {
+    @apply px-2 py-1 rounded-full text-xs font-medium;
+  }
+
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
 }
