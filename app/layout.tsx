@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import BottomNav from "@/components/ui/BottomNav";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,13 +16,13 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Aya — Bahala na si Aya",
   description: "AI-Integrated Group Dining Decision App",
-  themeColor: "#E85D26",
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  themeColor: "#E85D26",
 };
 
 export default function RootLayout({
@@ -35,7 +36,8 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-aya-bg">
-        {children}
+        <main className="flex-1 pb-16">{children}</main>
+        <BottomNav />
       </body>
     </html>
   );

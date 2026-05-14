@@ -7,7 +7,7 @@
 ## LAST UPDATED
 _Update this timestamp every time you check something off._
 ```
-Last update: 2026-05-14 09:36 PHT
+Last update: 2026-05-14 10:50 PHT
 Updated by:  Den
 ```
 
@@ -122,19 +122,22 @@ Updated by:  Den
 - [x] ✅ "Pinakamalapit" fallback prompt (no unanimous match)
 
 ### Phase D — Bottom Navigation
-- [ ] ⬜ `BottomNav.tsx` — DISCOVER / PIN / HISTORY tabs
-- [ ] ⬜ Fixed at bottom, safe-area-inset aware (iOS)
-- [ ] ⬜ Active tab highlighting
+- [x] ✅ `BottomNav.tsx` — DISCOVER / PIN / HISTORY tabs
+- [x] ✅ Fixed at bottom, safe-area-inset aware (iOS)
+- [x] ✅ Active tab highlighting
 
 ### Phase E — Shared Components
-- [ ] ⬜ `LoadingSpinner.tsx` — Aya branded (orange flame icon)
+- [x] ✅ `LoadingSpinner.tsx` — Aya branded (orange flame SVG icon)
+- [x] ✅ `not-found.tsx` — 404 page with Aya branding
+- [x] ✅ BottomNav integrated into root layout
+- [x] ✅ Onboarding route group hides BottomNav for full-screen experience
 - [ ] ⬜ Toast notification component
 - [ ] ⬜ Error boundary / fallback UI
 - [ ] ⬜ Mobile viewport meta + PWA manifest
 
 **Notes / Blockers:**
 ```
-- Onboarding (Kwentuhan) Phase A complete: app/onboarding/page.tsx with 4-step flow, Framer Motion transitions, SessionContext state management
+- Onboarding (Kwentuhan) Phase A complete: app/(onboarding)/onboarding/page.tsx with 4-step flow, Framer Motion transitions, SessionContext state management
 - app/page.tsx now redirects to /onboarding
 - Activities tile deprecated per user feedback — 3 tiles (Food & Drinks, Explore, Full Day) in 2x2 grid
 - All 9 Phase A tasks marked ✅
@@ -144,6 +147,9 @@ Updated by:  Den
 - Barkada lobby page created: app/barkada/[code]/lobby/page.tsx with realtime participant list, session code display, share/copy, status dots, all-done redirect
 - SessionProvider context created: components/providers/SessionProvider.tsx wrapping useSession hook
 - Barkada layout created: app/barkada/[code]/layout.tsx reads sessionCode from params, participantId from sessionStorage
+- Phase D complete: BottomNav.tsx with DISCOVER/PIN/HISTORY tabs, SVG icons, usePathname active detection, pb-safe iOS padding
+- Phase E partial: LoadingSpinner.tsx (animated flame SVG + Framer Motion), not-found.tsx (404 page), onboarding route group (onboarding)/layout.tsx hides BottomNav
+- Onboarding moved to route group app/(onboarding)/onboarding/ for full-screen experience without BottomNav
 ```
 
 ---
