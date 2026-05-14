@@ -12,6 +12,8 @@ export function scoreSwipe(speedMs: number, dragDistance: number): number {
 
 /**
  * Computes matches by grouping right swipes and ranking them by count and enthusiasm.
+ * Formula (DESIGN.md §4.5): 
+ * Consensus (50%) + Speed (30%) + Hesitation (20%)
  */
 export function computeMatches(
     swipes: SwipeRecord[],
@@ -20,6 +22,7 @@ export function computeMatches(
 ): MatchResult[] {
     const rightSwipes = swipes.filter(s => s.direction === 'right');
     const establishmentMap = new Map(establishments.map(e => [e.id, e]));
+    const totalParticipants = Math.max(1, participants.length);
 
     // Group right swipes by establishment_id
     const groups = new Map<string, SwipeRecord[]>();
@@ -37,25 +40,30 @@ export function computeMatches(
         if (!establishment) continue;
 
         const rightSwipeCount = estSwipes.length;
-        const enthusiasmScore = estSwipes.reduce((sum, s) =>
-            sum + scoreSwipe(s.speed_ms, s.drag_distance), 0
-        );
+        
+        // Consensus component (50%)
+        const consensusScore = (rightSwipeCount / totalParticipants) * 0.5;
+
+        // Speed component (30%) - Fast swipe (>300px/s) = 0.3, slow = 0.1
+        const avgSpeed = estSwipes.reduce((sum, s) => sum + (s.speed_ms || 0), 0) / rightSwipeCount;
+        const speedScore = avgSpeed > 300 ? 0.3 : 0.1;
+
+        // Hesitation component (20%) - Less hesitation (under 3s) is higher score
+        const avgHesitation = estSwipes.reduce((sum, s) => sum + (s.hesitation_ms || 0), 0) / rightSwipeCount;
+        const hesitationScore = Math.max(0, (1 - avgHesitation / 3000)) * 0.2;
+
+        const totalEnthusiasmScore = consensusScore + speedScore + hesitationScore;
 
         results.push({
             establishment,
             right_swipe_count: rightSwipeCount,
-            enthusiasm_score: enthusiasmScore,
+            enthusiasm_score: totalEnthusiasmScore,
             participant_swipes: estSwipes
         });
     }
 
-    // Sort by right_swipe_count DESC, then enthusiasm_score DESC
-    return results.sort((a, b) => {
-        if (b.right_swipe_count !== a.right_swipe_count) {
-            return b.right_swipe_count - a.right_swipe_count;
-        }
-        return b.enthusiasm_score - a.enthusiasm_score;
-    });
+    // Sort by enthusiasm_score DESC
+    return results.sort((a, b) => b.enthusiasm_score - a.enthusiasm_score);
 }
 
 /**

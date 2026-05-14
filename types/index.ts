@@ -62,6 +62,7 @@ export type SwipeRecord = {
     establishment_id: string;
     direction: 'left' | 'right';
     speed_ms: number;
+    hesitation_ms: number;
     drag_distance: number;
     created_at: string;
 };

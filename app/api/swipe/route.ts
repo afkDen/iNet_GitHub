@@ -5,7 +5,7 @@ export async function POST(req: Request) {
     try {
         const supabase = await createClient();
         const body = await req.json();
-        const { session_id, participant_id, establishment_id, direction, speed_ms, drag_distance } = body;
+        const { session_id, participant_id, establishment_id, direction, speed_ms, drag_distance, hesitation_ms } = body;
 
         if (!session_id || !participant_id || !establishment_id || !direction) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -16,10 +16,11 @@ export async function POST(req: Request) {
             .insert({
                 session_id,
                 participant_id,
-                venue_id: establishment_id, // Mapping establishment_id to venue_id in DB
+                establishment_id, 
                 direction,
-                swipe_speed_ms: speed_ms,
+                speed_ms,
                 drag_distance,
+                hesitation_ms
             })
             .select()
             .single();

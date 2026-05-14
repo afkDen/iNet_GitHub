@@ -43,6 +43,7 @@ async function fixSchema() {
 
     // Ensure participants columns
     console.log('2. Ensuring participants columns...');
+    await runSql("ALTER TABLE participants ADD COLUMN IF NOT EXISTS display_name TEXT;", 'participants.display_name');
     await runSql("ALTER TABLE participants ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'joined';", 'participants.status');
     await runSql('ALTER TABLE participants ADD COLUMN IF NOT EXISTS is_done BOOLEAN DEFAULT FALSE;', 'participants.is_done');
 

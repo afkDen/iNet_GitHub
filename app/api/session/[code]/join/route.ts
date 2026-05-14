@@ -28,7 +28,7 @@ export async function POST(
             .from('participants')
             .insert({
                 session_id: session.id,
-                display_name: nickname,
+                nickname: nickname,
                 status: 'joined'
             })
             .select()

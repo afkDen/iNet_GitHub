@@ -89,7 +89,7 @@ export default function RevealPage() {
             </motion.div>
           </div>
           <h1 className="text-4xl font-black text-aya-secondary tracking-tighter uppercase">Panalo!</h1>
-          <p className="text-aya-muted font-bold tracking-widest text-xs uppercase">Aya decided your match</p>
+          <p className="text-aya-muted font-bold tracking-widest text-[10px] uppercase">Aya analyzed your swipes & hesitation</p>
         </motion.div>
 
         {/* Winner Card */}
@@ -113,6 +113,13 @@ export default function RevealPage() {
                 </div>
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+            
+            {/* Solo Stats Overlay */}
+            <div className="absolute top-4 left-4 bg-aya-primary text-white px-3 py-1 rounded-full flex items-center gap-2 shadow-lg border border-white/20">
+                <Sparkles size={12} className="fill-white" />
+                <span className="text-[10px] font-black uppercase tracking-widest">Aya's Choice</span>
+            </div>
+
             <div className="absolute bottom-4 left-4 text-white">
               <p className="text-[10px] font-bold uppercase tracking-widest opacity-80">{winner.category} • {winner.city}</p>
               <h2 className="text-2xl font-black">{winner.name}</h2>
@@ -120,6 +127,13 @@ export default function RevealPage() {
           </div>
           
           <div className="p-6 space-y-4">
+            <div className="bg-aya-bg/50 p-3 rounded-xl border border-aya-muted/10">
+                <p className="text-[10px] font-black text-aya-muted uppercase tracking-[0.2em] mb-1">Aya's Logic:</p>
+                <p className="text-xs font-bold text-aya-secondary italic">
+                    "You swiped right on this one the fastest! No hesitation means you're really craving it."
+                </p>
+            </div>
+
             <div className="flex items-center gap-2 text-sm text-aya-secondary font-bold">
               <MapPin size={16} className="text-aya-primary" />
               <span>{winner.address}</span>

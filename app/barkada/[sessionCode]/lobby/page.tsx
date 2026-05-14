@@ -90,11 +90,11 @@ function LobbyContent({ params }: { params: Promise<{ sessionCode: string }> }) 
                     className="bg-white/50 p-4 rounded-2xl border-2 border-dashed border-aya-muted/20 flex items-center gap-3"
                   >
                     <div className="w-10 h-10 rounded-full bg-aya-primary text-white flex items-center justify-center font-black">
-                      {p.display_name?.charAt(0) || 'P'}
+                      {p.nickname?.charAt(0) || 'P'}
                     </div>
                     <div>
                       <p className="font-bold text-aya-secondary text-sm">
-                        {p.id === participant?.id ? `You (${p.display_name})` : p.display_name}
+                        {p.id === participant?.id ? `You (${p.nickname})` : p.nickname}
                       </p>
                       <p className="text-aya-muted text-[10px] uppercase font-bold tracking-widest">
                         {p.is_done ? 'Done ✅' : 'Waiting...'}
@@ -105,7 +105,7 @@ function LobbyContent({ params }: { params: Promise<{ sessionCode: string }> }) 
           </div>
 
           <button 
-            onClick={() => router.push('/solo')}
+            onClick={() => router.push(`/barkada/${sessionCode}/swipe`)}
             className="w-full bg-white text-aya-secondary font-black py-4 rounded-2xl shadow-md border-2 border-transparent hover:border-aya-primary/20 transition-all flex items-center justify-center gap-2 group"
           >
             Start Swiping

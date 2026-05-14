@@ -29,56 +29,22 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   const [sessionData, setSessionDataState] = useState<Session | null>(null);
   const [participant, setParticipantState] = useState<Participant | null>(null);
 
-  // Load from sessionStorage on mount
-  useEffect(() => {
-    const savedContext = sessionStorage.getItem('aya_session_context');
-    const savedSession = sessionStorage.getItem('aya_session_data');
-    const savedParticipant = sessionStorage.getItem('aya_participant_data');
-
-    if (savedContext) {
-      try { setContextState(JSON.parse(savedContext)); } catch (e) { console.error('Failed to parse saved context', e); }
-    }
-    if (savedSession) {
-      try { setSessionDataState(JSON.parse(savedSession)); } catch (e) { console.error('Failed to parse saved session', e); }
-    }
-    if (savedParticipant) {
-      try { setParticipantState(JSON.parse(savedParticipant)); } catch (e) { console.error('Failed to parse saved participant', e); }
-    }
-  }, []);
-
   const setContext = (updates: Partial<ContextType>) => {
-    setContextState(prev => {
-      const next = { ...prev, ...updates };
-      sessionStorage.setItem('aya_session_context', JSON.stringify(next));
-      return next;
-    });
+    setContextState(prev => ({ ...prev, ...updates }));
   };
 
   const setSessionData = (data: Session | null) => {
     setSessionDataState(data);
-    if (data) {
-      sessionStorage.setItem('aya_session_data', JSON.stringify(data));
-    } else {
-      sessionStorage.removeItem('aya_session_data');
-    }
   };
 
   const setParticipant = (data: Participant | null) => {
     setParticipantState(data);
-    if (data) {
-      sessionStorage.setItem('aya_participant_data', JSON.stringify(data));
-    } else {
-      sessionStorage.removeItem('aya_participant_data');
-    }
   };
 
   const resetSession = () => {
     setContextState(DEFAULT_CONTEXT);
     setSessionDataState(null);
     setParticipantState(null);
-    sessionStorage.removeItem('aya_session_context');
-    sessionStorage.removeItem('aya_session_data');
-    sessionStorage.removeItem('aya_participant_data');
   };
 
   return (

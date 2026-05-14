@@ -7,7 +7,7 @@ import Image from 'next/image';
 
 interface SwipeCardProps {
   establishment: any;
-  onSwipe: (direction: 'left' | 'right', velocity: number, distance: number) => void;
+  onSwipe: (direction: 'left' | 'right', velocity: number, distance: number, hesitation: number) => void;
   isTop: boolean;
 }
 
@@ -15,6 +15,7 @@ const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1514362545857-3bc16c4c
 
 export default function SwipeCard({ establishment, onSwipe, isTop }: SwipeCardProps) {
   const [imgError, setImgError] = useState(false);
+  const [entryTime] = useState(Date.now());
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-200, 200], [-25, 25]);
   const opacity = useTransform(x, [-200, -150, 0, 150, 200], [0, 1, 1, 1, 0]);
@@ -24,10 +25,12 @@ export default function SwipeCard({ establishment, onSwipe, isTop }: SwipeCardPr
   const handleDragEnd = (_: any, info: PanInfo) => {
     const velocity = Math.abs(info.velocity.x);
     const distance = Math.abs(info.offset.x);
+    const hesitation = Date.now() - entryTime;
+    
     if (info.offset.x > 100) {
-      onSwipe('right', velocity, distance);
+      onSwipe('right', velocity, distance, hesitation);
     } else if (info.offset.x < -100) {
-      onSwipe('left', velocity, distance);
+      onSwipe('left', velocity, distance, hesitation);
     }
   };
 
