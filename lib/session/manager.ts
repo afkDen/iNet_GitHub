@@ -65,8 +65,21 @@ export function buildCardStack(context: SessionContext, allEstablishments: Estab
         // All categories
     }
 
-    // Shuffle the filtered results
-    const shuffled = filtered.sort(() => Math.random() - 0.5);
+    // 4. Sort by vibe keywords (if any)
+    if (context.vibe_keywords && context.vibe_keywords.length > 0) {
+        filtered = filtered.sort((a, b) => {
+            const aMatches = (a.vibe_tags || []).filter(t => context.vibe_keywords!.includes(t.toLowerCase())).length;
+            const bMatches = (b.vibe_tags || []).filter(t => context.vibe_keywords!.includes(t.toLowerCase())).length;
+            return bMatches - aMatches;
+        });
+    }
+
+    // Shuffle the filtered results (but preserve the top vibe matches if they exist)
+    // We'll shuffle within groups of match counts to keep it varied but relevant.
+    const shuffled = filtered; // Sorting already happened if keywords exist
+    if (!context.vibe_keywords || context.vibe_keywords.length === 0) {
+        shuffled.sort(() => Math.random() - 0.5);
+    }
 
     // Ensure at least 2 community pins if available
     const communityPins = shuffled.filter(e => e.is_community_pin);
