@@ -13,6 +13,8 @@ export default function PinPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
+  const isFormValid = placeName.trim() !== '' && selectedImage !== null;
+
   const handleChoice = (type: 'camera' | 'file') => {
     setIsPopupOpen(false);
     if (type === 'camera') {
@@ -31,6 +33,8 @@ export default function PinPage() {
   };
 
   const handleSubmit = () => {
+    if (!isFormValid) return;
+
     setIsSuccessOpen(true);
     setPlaceName('');
     setSelectedImage(null);
@@ -81,7 +85,15 @@ export default function PinPage() {
             </div>
           </div>
 
-          <button onClick={handleSubmit} className="w-full bg-aya-primary text-white font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-all">
+          <button 
+            onClick={handleSubmit} 
+            disabled={!isFormValid}
+            className={`w-full font-black py-4 rounded-2xl shadow-lg transition-all 
+              ${isFormValid 
+                ? 'bg-aya-primary text-white active:scale-95' 
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'
+              }`}
+          >
             Submit for Review
           </button>
         </div>
@@ -141,7 +153,6 @@ export default function PinPage() {
       )}
       
       <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleFileChange} />
-
       <BottomNav />
     </div>
   );
