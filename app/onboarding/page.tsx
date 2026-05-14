@@ -5,8 +5,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter, useSearchParams } from 'next/navigation';
 import ModeSelector from '@/components/ui/ModeSelector';
 import ContextCards from '@/components/ui/ContextCards';
-import { SessionMode, OutingType, BudgetTier } from '@/types';
-import { Utensils, Beer, Palmtree, Clock, Wallet, Navigation, Search, Sparkles, Loader2, Users, ArrowRight } from 'lucide-react';
+import EstablishmentCard from '@/components/ui/EstablishmentCard';
+import EstablishmentDetailModal from '@/components/ui/EstablishmentDetailModal';
+import { establishments } from '@/lib/data/establishments';
+import { SessionMode, OutingType, BudgetTier, Establishment } from '@/types';
+import { Utensils, Beer, Palmtree, Clock, Wallet, Navigation, Search, Sparkles, Loader2, Users, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useSession } from '@/components/providers/SessionProvider';
 function OnboardingFlow() {
   const STEPS = ['type', 'mode', 'budget', 'distance'];
@@ -18,6 +21,8 @@ function OnboardingFlow() {
   const [searchText, setSearchText] = useState('');
   const [joinCode, setJoinCode] = useState(searchParams.get('join') || '');
   const [isJoining, setIsJoining] = useState(!!searchParams.get('join'));
+  const [isExploring, setIsExploring] = useState(false);
+  const [selectedEstablishment, setSelectedEstablishment] = useState<Establishment | null>(null);
 
   const finalizeSession = async (customContext = context) => {
     setLoading(true);
@@ -130,7 +135,11 @@ function OnboardingFlow() {
   };
 
   const handleBack = () => {
-    if (currentStep > 0) {
+    if (isExploring) {
+        setIsExploring(false);
+    } else if (context.mode === 'lakbay' && currentStep === 2) {
+      setCurrentStep(0);
+    } else if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
     } else if (isJoining) {
         setIsJoining(false);
@@ -165,6 +174,28 @@ function OnboardingFlow() {
         );
     }
 
+    if (isExploring) {
+      return (
+        <div className="w-full max-w-6xl mx-auto p-4 h-[75vh] overflow-y-auto">
+          <div className="space-y-2 mb-8 px-2">
+            <h2 className="text-4xl font-black text-aya-secondary leading-tight tracking-tight">Explore the Vibes</h2>
+            <p className="text-aya-muted font-bold text-sm">Sali ka na sa experience! Here are the hottest spots today.</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 px-2 pb-20">
+            {establishments
+              .sort((a, b) => a.cost_min - b.cost_min)
+              .map(est => (
+                <EstablishmentCard 
+                    key={est.id} 
+                    establishment={est} 
+                    onClick={() => setSelectedEstablishment(est)}
+                />
+              ))}
+          </div>
+        </div>
+      );
+    }
+
     switch (STEPS[currentStep]) {
       case 'type':
         return (
@@ -180,6 +211,11 @@ function OnboardingFlow() {
               onSelect={(id) => {
                 if (id === 'join') {
                     setIsJoining(true);
+                } else if (id === 'full_day') {
+                    setContext({ outing_type: 'full_day', mode: 'lakbay' });
+                    setCurrentStep(2); // Skip 'mode' step (index 1) and go to 'budget' (index 2)
+                } else if (id === 'explore') {
+                    setIsExploring(true);
                 } else {
                     setContext({ outing_type: id as OutingType });
                     handleNext();
@@ -189,7 +225,7 @@ function OnboardingFlow() {
                 { id: 'food', label: 'Food & Drinks', icon: <Utensils /> },
                 { id: 'join', label: 'Sumali na', icon: <Users className="text-aya-primary" /> },
                 { id: 'explore', label: 'Explore', icon: <Beer /> },
-                { id: 'full_day', label: 'Full Day', icon: <Clock /> },
+                { id: 'full_day', label: 'Lakbay', icon: <Clock /> },
               ]}
             />
 
@@ -274,8 +310,18 @@ function OnboardingFlow() {
 
       {/* Header */}
       <div className="flex items-center justify-between p-6">
-        <h1 className="text-3xl font-black text-aya-primary tracking-tighter italic">aya</h1>
-        {!isJoining && (
+        <div className="flex items-center gap-4">
+            {isExploring && (
+                <button 
+                    onClick={() => setIsExploring(false)}
+                    className="p-2 -ml-2 text-aya-muted hover:text-aya-primary transition-colors rounded-full hover:bg-aya-primary/5"
+                >
+                    <ArrowLeft size={24} />
+                </button>
+            )}
+            <h1 className="text-3xl font-black text-aya-primary tracking-tighter italic">aya</h1>
+        </div>
+        {!isJoining && !isExploring && (
             <div className="flex gap-1">
             {STEPS.map((_, i) => (
                 <div 
@@ -290,7 +336,7 @@ function OnboardingFlow() {
         )}
       </div>
 
-      <main className="flex-1 flex flex-col items-center justify-center">
+      <main className={cn("flex-1 flex flex-col", isExploring ? "items-start justify-start" : "items-center justify-center")}>
         <AnimatePresence mode="wait">
           <motion.div
             key={isJoining ? 'joining' : currentStep}
@@ -316,6 +362,11 @@ function OnboardingFlow() {
           </button>
         )}
       </div>
+
+      <EstablishmentDetailModal 
+        establishment={selectedEstablishment} 
+        onClose={() => setSelectedEstablishment(null)} 
+      />
     </div>
   );
 }

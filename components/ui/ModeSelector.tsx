@@ -33,13 +33,6 @@ const MODES: ModeOption[] = [
     icon: <Users className="w-6 h-6" />,
     color: 'bg-aya-secondary text-white',
   },
-  {
-    id: 'lakbay',
-    title: 'Lakbay',
-    description: 'Let Aya plan your whole day.',
-    icon: <Map className="w-6 h-6" />,
-    color: 'bg-aya-accent text-white',
-  },
 ];
 
 interface ModeSelectorProps {
