@@ -7,7 +7,7 @@
 ## LAST UPDATED
 _Update this timestamp every time you check something off._
 ```
-Last update: 2026-05-14 09:15 PHT
+Last update: 2026-05-14 09:30 PHT
 Updated by:  Gemini CLI
 ```
 
@@ -18,10 +18,10 @@ Updated by:  Gemini CLI
 | Track | Owner | Status | % Done |
 |---|---|---|---|
 | SETUP | All | ✅ | 100% |
-| FRONTEND | Frontend Lead | 🔄 | 75% |
+| FRONTEND | Frontend Lead | 🔄 | 80% |
 | BACKEND | Backend Lead | ✅ | 100% |
 | AI | AI Lead | 🔄 | 90% |
-| INTEGRATION | Integration | 🔄 | 85% |
+| INTEGRATION | Integration | 🔄 | 90% |
 | DEMO / SMOKE & MIRRORS | Demo Lead | 🔄 | 25% |
 | POLISH | All | ⬜ | 0% |
 
@@ -77,11 +77,12 @@ Updated by:  Gemini CLI
 - [x] ✅ `ContextCards.tsx` — tappable choice tiles (outing type, group size, budget, distance)
 - [x] ✅ Mode selector tiles (Solo / Barkada / Lakbay) on first step
 - [x] ✅ Budget display with Filipino labels ("Grabe Tipid" → "Bahala Na")
-- [ ] ⬜ Natural language text input with placeholder
-- [ ] ⬜ "Surprise Me!" button (randomize all context, skip to swipe)
+- [x] ✅ Natural language text input with placeholder (Integrated with NVIDIA NIM)
+- [x] ✅ "Surprise Me!" button (randomize all context, skip to swipe)
 - [x] ✅ "Next →" button advances through steps
 - [x] ✅ Smooth step transitions (Framer Motion `AnimatePresence`)
 - [x] ✅ State collected into `SessionContext` object (via SessionProvider)
+- [x] ✅ "Sumali na" (Join) option added to step 1 with session code input
 
 ### Phase B — Swipe Deck (Hain)
 - [x] ✅ `SwipeCard.tsx` — base card layout (captured velocity/distance physics)
@@ -99,8 +100,8 @@ Updated by:  Gemini CLI
 - [x] ✅ Solo match screen — single card reveal + directions button
 
 ### Phase C — Group Mode UI
-- [x] ✅ `/barkada/page.tsx` — create session button, generate code (Live Session Data)
-- [ ] ⬜ `SessionLobby.tsx` — participant list with live status dots
+- [x] ✅ `/barkada/[sessionCode]/lobby` — dynamic lobby with live participant list
+- [x] ✅ `SessionLobby.tsx` — participant list with live status dots (Implemented via useSession hook)
 - [x] ✅ Session code display (large, bold) + QR code placeholder
 - [x] ✅ Share link button (Web Share API with join-link generation)
 - [ ] ⬜ Circular progress per participant (filled when done)
@@ -192,7 +193,7 @@ Updated by:  Gemini CLI
 - [x] ✅ `useVibeAI.ts` hook — calls `/api/ai/vibe` lazily per card as it appears
 - [x] ✅ Loading state on VibeBadge (hook returns `loading` boolean for skeleton UI)
 - [x] ✅ Fallback to seeded vibe tags if NIM call fails/times out
-- [ ] ⬜ Natural language input in Kwentuhan calls `/api/ai/context` on submit (needs frontend wiring)
+- [x] ✅ Natural language input in Kwentuhan calls `/api/ai/context` on submit
 
 ### Pre-generation (optional optimization)
 - [x] ✅ Run vibe tag generation during seeding (implemented `scripts/pregenerate-vibes.ts` to store tags in `vibe_tags` column)
@@ -208,7 +209,6 @@ Updated by:  Gemini CLI
 - .env.local: model updated from google/gemma-3-27b-it (410 deprecated) to google/gemma-4-31b-it
 - API key is valid (410 proves connectivity; not an auth error)
 - scripts/pregenerate-vibes.ts: implemented to pre-fill vibe_tags in DB to avoid live NIM calls during demo
-- Still needed: Kwentuhan page wiring for NLP input
 ```
 
 ---
@@ -226,11 +226,11 @@ Updated by:  Gemini CLI
 - [x] ✅ Participant ID stored in `sessionStorage` (survives page nav, not persisted)
 
 ### Supabase Realtime
-- [ ] ⬜ `useSession.ts` hook — subscribes to `session:CODE` channel
-- [ ] ⬜ Participant join events update lobby list in real time
-- [ ] ⬜ Participant done events update status dots in lobby
+- [x] ✅ `useSession.ts` hook — subscribes to `session:CODE` channel
+- [x] ✅ Participant join events update lobby list in real time
+- [x] ✅ Participant done events update status dots in lobby
 - [ ] ⬜ When all participants done → trigger navigation to `/reveal`
-- [ ] ⬜ Cleanup: unsubscribe from channel on unmount
+- [x] ✅ Cleanup: unsubscribe from channel on unmount
 
 ### Match Flow
 - [x] ✅ Reveal page calls `GET /api/match/[code]/decide` on load

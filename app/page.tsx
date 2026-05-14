@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { Sparkles, Utensils, Users, MapPin } from 'lucide-react';
+import { Sparkles, Utensils, Users, MapPin, ArrowRight } from 'lucide-react';
 
 export default function LandingPage() {
   const router = useRouter();
@@ -54,9 +54,13 @@ export default function LandingPage() {
               className="w-full bg-aya-primary text-white text-xl font-black py-5 rounded-2xl shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 group"
             >
               Simulan na!
-              <Sparkles className="w-6 h-6 group-hover:animate-pulse" />
+              <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
             </button>
             
+            <p className="text-[10px] text-aya-muted font-black uppercase tracking-[0.2em]">
+              Choose a vibe or type it out
+            </p>
+
             <div className="flex justify-center gap-8 pt-4">
               <div className="flex flex-col items-center gap-1.5">
                 <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center text-aya-primary border border-aya-muted/10">

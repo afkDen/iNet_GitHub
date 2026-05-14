@@ -1,71 +1,220 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import ModeSelector from '@/components/ui/ModeSelector';
 import ContextCards from '@/components/ui/ContextCards';
 import { SessionMode, OutingType, BudgetTier } from '@/types';
-import { Utensils, Beer, Palmtree, Clock, Wallet, Navigation } from 'lucide-react';
+import { Utensils, Beer, Palmtree, Clock, Wallet, Navigation, Search, Sparkles, Loader2, Users, ArrowRight } from 'lucide-react';
 import { useSession } from '@/components/providers/SessionProvider';
-
-const STEPS = ['mode', 'type', 'budget', 'distance'];
-
-export default function OnboardingPage() {
+function OnboardingFlow() {
+  const STEPS = ['type', 'mode', 'budget', 'distance'];
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { context, setContext, setSessionData, setParticipant } = useSession();
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [searchText, setSearchText] = useState('');
+  const [joinCode, setJoinCode] = useState(searchParams.get('join') || '');
+  const [isJoining, setIsJoining] = useState(!!searchParams.get('join'));
 
-  const handleNext = async () => {
+  const finalizeSession = async (customContext = context) => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ context: customContext })
+      });
+      const data = await res.json();
+      
+      if (data.session) {
+        setSessionData(data.session);
+        
+        const joinRes = await fetch(`/api/session/${data.session.code}/join`, {
+           method: 'POST',
+           headers: { 'Content-Type': 'application/json' },
+           body: JSON.stringify({ nickname: 'Host' })
+        });
+        const joinData = await joinRes.json();
+        if (joinData.participant) setParticipant(joinData.participant);
+        
+        if (customContext.mode === 'solo') {
+          router.push('/solo');
+        } else if (customContext.mode === 'barkada') {
+          router.push(`/barkada/${data.session.code}/lobby`);
+        } else {
+          router.push('/lakbay');
+        }
+      }
+    } catch (err) {
+      console.error('Session creation failed:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleJoinSession = async (e?: React.FormEvent) => {
+      if (e) e.preventDefault();
+      if (!joinCode.trim()) return;
+
+      setLoading(true);
+      try {
+          const res = await fetch(`/api/session/${joinCode.trim()}/join`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ nickname: 'Friend' })
+          });
+          const data = await res.json();
+          if (data.participant) {
+              setParticipant(data.participant);
+              // Fetch session data to sync
+              const sessRes = await fetch(`/api/session/${joinCode.trim()}`);
+              const sessData = await sessRes.json();
+              if (sessData.session) setSessionData(sessData.session);
+              
+              router.push(`/barkada/${joinCode.trim()}/lobby`);
+          } else {
+              alert('Session not found or error joining.');
+          }
+      } catch (err) {
+          console.error('Join failed:', err);
+      } finally {
+          setLoading(false);
+      }
+  };
+
+  const handleNext = () => {
     if (currentStep < STEPS.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      setLoading(true);
-      try {
-        const res = await fetch('/api/session', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ context })
-        });
-        const data = await res.json();
-        
-        if (data.session) {
-          setSessionData(data.session);
-          
-          // Join session as host
-          const joinRes = await fetch(`/api/session/${data.session.code}/join`, {
-             method: 'POST',
-             headers: { 'Content-Type': 'application/json' },
-             body: JSON.stringify({ nickname: 'Host' })
-          });
-          const joinData = await joinRes.json();
-          if (joinData.participant) setParticipant(joinData.participant);
-          
-          if (context.mode === 'solo') {
-            router.push('/solo');
-          } else if (context.mode === 'barkada') {
-            router.push('/barkada');
-          } else {
-            router.push('/lakbay');
-          }
-        }
-      } catch (err) {
-        console.error('Session creation failed:', err);
-      } finally {
-        setLoading(false);
+      finalizeSession();
+    }
+  };
+
+  const handleSurprise = () => {
+    const surpriseContext = {
+      ...context,
+      mode: 'solo' as SessionMode,
+      budget: ['tipid', 'mid', 'bahala_na'][Math.floor(Math.random() * 3)] as BudgetTier,
+      outing_type: 'food' as OutingType,
+      distance_km: 10
+    };
+    setContext(surpriseContext);
+    finalizeSession(surpriseContext);
+  };
+
+  const handleSearchSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchText.trim()) return;
+
+    setLoading(true);
+    try {
+      const res = await fetch('/api/ai/context', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input: searchText, base: context })
+      });
+      const data = await res.json();
+      if (data.context) {
+        setContext(data.context);
+        handleNext();
       }
+    } catch (err) {
+      console.error('NLP Parse failed:', err);
+      handleNext();
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleBack = () => {
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
+    } else if (isJoining) {
+        setIsJoining(false);
     }
   };
 
   const renderStep = () => {
+    if (isJoining) {
+        return (
+            <div className="space-y-8 w-full max-w-sm mx-auto p-4">
+                <div className="space-y-2">
+                    <h2 className="text-4xl font-black text-aya-secondary leading-tight tracking-tight">Sumali sa Barkada</h2>
+                    <p className="text-aya-muted font-bold text-sm">Enter the code shared by your friend.</p>
+                </div>
+                <form onSubmit={handleJoinSession} className="space-y-4">
+                    <input 
+                        type="text"
+                        value={joinCode}
+                        onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+                        placeholder="AYA-XXXX"
+                        className="w-full bg-white py-6 text-center text-3xl font-mono tracking-widest rounded-2xl shadow-sm border-2 border-transparent focus:border-aya-primary transition-all text-aya-secondary uppercase"
+                    />
+                    <button 
+                        type="submit"
+                        className="w-full bg-aya-primary text-white text-xl font-black py-5 rounded-2xl shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+                    >
+                        Sumali Na!
+                        <ArrowRight />
+                    </button>
+                </form>
+            </div>
+        );
+    }
+
     switch (STEPS[currentStep]) {
+      case 'type':
+        return (
+          <div className="space-y-8 w-full max-w-sm mx-auto p-4">
+            <div className="space-y-2">
+              <h2 className="text-4xl font-black text-aya-secondary leading-tight tracking-tight">Where are you headed today?</h2>
+              <p className="text-aya-muted font-bold text-sm">Pick your outing type to start.</p>
+            </div>
+
+            <ContextCards
+              title=""
+              selectedId={context.outing_type}
+              onSelect={(id) => {
+                if (id === 'join') {
+                    setIsJoining(true);
+                } else {
+                    setContext({ outing_type: id as OutingType });
+                    handleNext();
+                }
+              }}
+              options={[
+                { id: 'food', label: 'Food & Drinks', icon: <Utensils /> },
+                { id: 'join', label: 'Sumali na', icon: <Users className="text-aya-primary" /> },
+                { id: 'explore', label: 'Explore', icon: <Beer /> },
+                { id: 'full_day', label: 'Full Day', icon: <Clock /> },
+              ]}
+            />
+
+            <form onSubmit={handleSearchSubmit} className="relative group">
+              <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-aya-muted group-focus-within:text-aya-primary transition-colors">
+                <Search size={20} />
+              </div>
+              <input 
+                type="text"
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                placeholder="Or just type it out... 'Budget na dinner'"
+                className="w-full bg-white py-5 pl-12 pr-4 rounded-2xl shadow-sm border-2 border-transparent focus:border-aya-primary/20 focus:ring-0 transition-all font-bold text-aya-secondary"
+              />
+            </form>
+
+            <button 
+              onClick={handleSurprise}
+              className="w-full py-4 text-aya-muted font-black text-xs uppercase tracking-[0.2em] hover:text-aya-primary transition-colors flex items-center justify-center gap-2"
+            >
+              <Sparkles size={14} />
+              Surprise Me — skip all this
+            </button>
+          </div>
+        );
       case 'mode':
         return (
           <ModeSelector 
@@ -74,23 +223,6 @@ export default function OnboardingPage() {
               setContext({ mode });
               handleNext();
             }} 
-          />
-        );
-      case 'type':
-        return (
-          <ContextCards
-            title="Ano'ng plano?"
-            selectedId={context.outing_type}
-            onSelect={(id) => {
-              setContext({ outing_type: id as OutingType });
-              handleNext();
-            }}
-            options={[
-              { id: 'food', label: 'Kain Tayo', icon: <Utensils /> },
-              { id: 'activities', label: 'Gala / Activity', icon: <Palmtree /> },
-              { id: 'explore', label: 'Drinks / Chill', icon: <Beer /> },
-              { id: 'full_day', label: 'Full Day Outing', icon: <Clock /> },
-            ]}
           />
         );
       case 'budget':
@@ -132,27 +264,36 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="flex flex-col flex-1 bg-aya-bg min-h-screen">
+    <div className="flex flex-col flex-1 bg-aya-bg min-h-screen relative overflow-hidden">
+      {loading && (
+        <div className="absolute inset-0 z-50 bg-aya-bg/80 backdrop-blur-sm flex flex-col items-center justify-center gap-4">
+          <Loader2 className="w-12 h-12 text-aya-primary animate-spin" />
+          <p className="text-aya-secondary font-black text-xl animate-pulse italic">Hinahanap ni Aya...</p>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between p-6">
         <h1 className="text-3xl font-black text-aya-primary tracking-tighter italic">aya</h1>
-        <div className="flex gap-1">
-          {STEPS.map((_, i) => (
-            <div 
-              key={i} 
-              className={cn(
-                "h-1.5 rounded-full transition-all duration-300",
-                i === currentStep ? "w-6 bg-aya-primary" : "w-1.5 bg-aya-muted/30"
-              )}
-            />
-          ))}
-        </div>
+        {!isJoining && (
+            <div className="flex gap-1">
+            {STEPS.map((_, i) => (
+                <div 
+                key={i} 
+                className={cn(
+                    "h-1.5 rounded-full transition-all duration-300",
+                    i === currentStep ? "w-6 bg-aya-primary" : "w-1.5 bg-aya-muted/30"
+                )}
+                />
+            ))}
+            </div>
+        )}
       </div>
 
       <main className="flex-1 flex flex-col items-center justify-center">
         <AnimatePresence mode="wait">
           <motion.div
-            key={currentStep}
+            key={isJoining ? 'joining' : currentStep}
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
@@ -166,7 +307,7 @@ export default function OnboardingPage() {
 
       {/* Footer / Back button */}
       <div className="p-8 flex justify-center">
-        {currentStep > 0 && (
+        {(currentStep > 0 || isJoining) && (
           <button 
             onClick={handleBack}
             className="text-aya-muted font-bold text-sm hover:text-aya-secondary transition-colors"
@@ -177,6 +318,18 @@ export default function OnboardingPage() {
       </div>
     </div>
   );
+}
+
+export default function OnboardingPage() {
+    return (
+        <Suspense fallback={
+            <div className="flex flex-col items-center justify-center min-h-screen bg-aya-bg gap-4">
+                <Loader2 className="w-12 h-12 text-aya-primary animate-spin" />
+            </div>
+        }>
+            <OnboardingFlow />
+        </Suspense>
+    );
 }
 
 function cn(...inputs: any[]) {
