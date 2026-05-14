@@ -7,7 +7,7 @@
 ## LAST UPDATED
 _Update this timestamp every time you check something off._
 ```
-Last update: 2026-05-14 04:10 PHT
+Last update: 2026-05-14 09:15 PHT
 Updated by:  Den
 ```
 
@@ -105,8 +105,8 @@ Updated by:  Den
 - [x] ✅ Undo ("Balik Mo To") — pull back last card, one per session
 - [x] ✅ Progress counter "Card N of 18 · Solo Mode"
 - [x] ✅ Empty deck state → trigger match/end screen
-- [ ] ⬜ `/solo/page.tsx` — solo mode swipe page
-- [ ] ⬜ Solo match screen — single card reveal + directions button
+- [x] ✅ `/solo/page.tsx` — solo mode swipe page
+- [x] ✅ Solo match screen — single card reveal + directions button
 
 ### Phase C — Group Mode UI
 - [ ] ⬜ `/barkada/page.tsx` — create session button, generate code
