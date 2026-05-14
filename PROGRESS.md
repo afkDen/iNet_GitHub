@@ -22,7 +22,7 @@ Updated by:  Den
 | BACKEND | Backend Lead | 🔄 | 50% |
 | AI | AI Lead | 🔄 | 80% |
 | INTEGRATION | Integration | ⬜ | 0% |
-| DEMO / SMOKE & MIRRORS | Demo Lead | ⬜ | 0% |
+| DEMO / SMOKE & MIRRORS | Demo Lead | ✅ | 100% |
 | POLISH | All | ⬜ | 0% |
 
 ---
@@ -298,27 +298,27 @@ Updated by:  Den
 - [x] ✅ Total cost + total time shown at top
 
 ### Drop a Pin — FAKE SUBMIT
-- [ ] ⬜ `/pin/page.tsx` — full form UI
-- [ ] ⬜ Photo upload area (accepts file, shows preview, does not upload anywhere)
-- [ ] ⬜ Place name input, GPS map (static Leaflet pin, draggable-looking)
-- [ ] ⬜ Vibe tag selector (up to 5 tags, interactive)
-- [ ] ⬜ "Why should people know this?" text area
-- [ ] ⬜ Submit → fake 1.5s loading → success toast "Submitted for verification!"
-- [ ] ⬜ No DB write. Form resets.
+- [x] ✅ `/pin/page.tsx` — full form UI
+- [x] ✅ Photo upload area (accepts file, shows preview, does not upload anywhere)
+- [x] ✅ Place name input, GPS map (static Leaflet pin, draggable-looking)
+- [x] ✅ Vibe tag selector (up to 5 tags, interactive)
+- [x] ✅ "Why should people know this?" text area
+- [x] ✅ Submit → fake 1.5s loading → success toast "Submitted for verification!"
+- [x] ✅ No DB write. Form resets.
 
 ### Business Listing Portal — FAKE SUBMIT
-- [ ] ⬜ `/business/page.tsx` — self-service listing form
-- [ ] ⬜ Business name, photos (preview only), hours picker, budget tier, vibe tags
-- [ ] ⬜ Deal toggle with time range
-- [ ] ⬜ Submit → 1.5s loading → "We'll verify your listing shortly."
-- [ ] ⬜ No DB write.
+- [x] ✅ `/business/page.tsx` — self-service listing form
+- [x] ✅ Business name, photos (preview only), hours picker, budget tier, vibe tags
+- [x] ✅ Deal toggle with time range
+- [x] ✅ Submit → 1.5s loading → "We'll verify your listing shortly."
+- [x] ✅ No DB write.
 
 ### Session History — FAKE DATA
-- [ ] ⬜ `/history/page.tsx` — "Your Outings" screen
-- [ ] ⬜ Pull from localStorage (`aya_history`) if any real sessions exist
-- [ ] ⬜ Pre-populate with 3–4 hardcoded past sessions as fallback
-- [ ] ⬜ "Did you go?" button → shows photo upload prompt (fake)
-- [ ] ⬜ "Want to Try" tab — shows 2–3 bookmarked spots (hardcoded)
+- [x] ✅ `/history/page.tsx` — "Your Outings" screen
+- [x] ✅ Pull from localStorage (`aya_history`) if any real sessions exist
+- [x] ✅ Pre-populate with 3–4 hardcoded past sessions as fallback
+- [x] ✅ "Did you go?" button → shows photo upload prompt (fake)
+- [x] ✅ "Want to Try" tab — shows 2–3 bookmarked spots (hardcoded)
 
 ### Aya Memory — FAKE UI
 - [ ] ⬜ Profile/settings screen (if time allows) showing "Based on X sessions"
