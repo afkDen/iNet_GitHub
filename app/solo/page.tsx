@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import type { Establishment, SessionContext } from '@/types';
 import SwipeDeck from '@/components/ui/SwipeDeck';
 
-export default function SoloPage() {
+function SoloPageContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const sessionCode = searchParams.get('session') ?? '';
@@ -175,5 +175,26 @@ export default function SoloPage() {
                 />
             </main>
         </div>
+    );
+}
+
+export default function SoloPage() {
+    return (
+        <Suspense fallback={
+            <div className="flex flex-col items-center justify-center min-h-screen gap-4 px-6 bg-[#F5F0E8]">
+                <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 1.5, ease: 'linear' }}
+                >
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#E8622A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 2c-1.5 4-2 6-2 8 0 3.5 2 5 2 5s2-1.5 2-5c0-2-.5-4-2-8z" />
+                        <path d="M12 2c1.5 4 2 6 2 8 0 3.5-2 5-2 5s-2-1.5-2-5c0-2 .5-4 2-8z" opacity="0.4" />
+                    </svg>
+                </motion.div>
+                <p className="text-lg font-semibold text-[#1A1A1A]">Hinahanap ni Aya...</p>
+            </div>
+        }>
+            <SoloPageContent />
+        </Suspense>
     );
 }
