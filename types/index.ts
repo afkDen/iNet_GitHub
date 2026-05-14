@@ -35,7 +35,7 @@ export type Session = {
     id: string;
     code: string;
     mode: 'solo' | 'barkada' | 'lakbay';
-    status: 'active' | 'matched' | 'expired';
+    status: 'active' | 'completed' | 'expired';
     context: SessionContext;
     matched_id?: string;
     card_stack: string[];
