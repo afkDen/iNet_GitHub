@@ -290,12 +290,12 @@ Updated by:  Den
 
 ### Lakbay (Itinerary Mode) — HARDCODED
 - [x] ✅ `lib/data/itineraries.ts` — 5 complete hardcoded itinerary objects
-- [ ] ⬜ Each itinerary: 3 stops (lunch, activity, merienda/dinner), times, costs, transport
-- [ ] ⬜ `/lakbay/page.tsx` — shows Kwentuhan flow, then fake AI loading screen (3 sec)
-- [ ] ⬜ `ItineraryCard.tsx` — expanded timeline with stop cards, map thumbnail
-- [ ] ⬜ Leaflet.js map showing route dots (static coordinates, no real routing)
-- [ ] ⬜ "Use this plan →" accepts, "Skip" shows next hardcoded itinerary
-- [ ] ⬜ Total cost + total time shown at top
+- [x] ✅ Each itinerary: 3 stops (lunch, activity, merienda/dinner), times, costs, transport
+- [x] ✅ `/lakbay/page.tsx` — shows Kwentuhan flow, then fake AI loading screen (3 sec)
+- [x] ✅ `ItineraryCard.tsx` — expanded timeline with stop cards, map thumbnail
+- [x] ✅ Leaflet.js map showing route dots (static coordinates, no real routing)
+- [x] ✅ "Use this plan →" accepts, "Skip" shows next hardcoded itinerary
+- [x] ✅ Total cost + total time shown at top
 
 ### Drop a Pin — FAKE SUBMIT
 - [ ] ⬜ `/pin/page.tsx` — full form UI
