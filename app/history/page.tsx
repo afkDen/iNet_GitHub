@@ -1,6 +1,7 @@
 'use client';
 
 import { History, Calendar, Star, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 import BottomNav from '@/components/ui/BottomNav';
 
 const MOCK_HISTORY = [
@@ -12,7 +13,9 @@ export default function HistoryPage() {
   return (
     <div className="flex flex-col flex-1 bg-aya-bg min-h-screen pb-24">
       <header className="p-6">
-        <h1 className="text-3xl font-black text-aya-primary tracking-tighter italic">aya</h1>
+        <Link href="/">
+          <h1 className="text-3xl font-black text-aya-primary tracking-tighter italic cursor-pointer">aya</h1>
+        </Link>
       </header>
 
       <main className="flex-1 flex flex-col p-6 gap-6 max-w-sm mx-auto w-full">

@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Users, Share2, ArrowRight, Sparkles } from 'lucide-react';
 import BottomNav from '@/components/ui/BottomNav';
@@ -28,7 +29,9 @@ export default function BarkadaLobbyPage() {
   return (
     <div className="flex flex-col flex-1 bg-aya-bg min-h-screen pb-24">
       <header className="p-6">
-        <h1 className="text-3xl font-black text-aya-primary tracking-tighter italic">aya</h1>
+        <Link href="/">
+          <h1 className="text-3xl font-black text-aya-primary tracking-tighter italic cursor-pointer">aya</h1>
+        </Link>
       </header>
 
       <main className="flex-1 flex flex-col items-center justify-center p-6 gap-8">

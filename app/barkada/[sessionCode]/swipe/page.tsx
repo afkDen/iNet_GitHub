@@ -2,6 +2,7 @@
 
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import SwipeDeck from '@/components/ui/SwipeDeck';
 import BottomNav from '@/components/ui/BottomNav';
 import { useSession } from '@/components/providers/SessionProvider';
@@ -93,7 +94,9 @@ export default function BarkadaSwipePage({ params }: { params: Promise<{ session
     <div className="flex flex-col flex-1 bg-aya-bg min-h-screen pb-24">
       <header className="p-6 flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-black text-aya-secondary tracking-tight italic">aya</h1>
+          <Link href="/">
+            <h1 className="text-2xl font-black text-aya-secondary tracking-tight italic cursor-pointer">aya</h1>
+          </Link>
           <div className="flex items-center gap-2 mt-1">
             <span className="bg-aya-secondary text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest">Barkada Mode</span>
             <span className="text-aya-muted text-[10px] font-bold">{sessionCode}</span>

@@ -3,13 +3,14 @@
 import { useState, useEffect, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import ModeSelector from '@/components/ui/ModeSelector';
 import ContextCards from '@/components/ui/ContextCards';
 import EstablishmentCard from '@/components/ui/EstablishmentCard';
 import EstablishmentDetailModal from '@/components/ui/EstablishmentDetailModal';
 import { establishments } from '@/lib/data/establishments';
 import { SessionMode, OutingType, BudgetTier, Establishment } from '@/types';
-import { Utensils, Beer, Palmtree, Clock, Wallet, Navigation, Search, Sparkles, Loader2, Users, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Utensils, Beer, Palmtree, Clock, Wallet, Navigation, Search, Sparkles, Loader2, Users, ArrowRight, ArrowLeft, MapPin } from 'lucide-react';
 import { useSession } from '@/components/providers/SessionProvider';
 function OnboardingFlow() {
   const STEPS = ['type', 'mode', 'budget', 'distance'];
@@ -249,6 +250,13 @@ function OnboardingFlow() {
               <Sparkles size={14} />
               Surprise Me — skip all this
             </button>
+            <button 
+              onClick={() => router.push('/pin')}
+              className="w-full py-4 text-aya-muted font-black text-xs uppercase tracking-[0.2em] hover:text-aya-primary transition-colors flex items-center justify-center gap-2"
+            >
+              <MapPin size={14} />
+              More Options
+            </button>
           </div>
         );
       case 'mode':
@@ -319,7 +327,9 @@ function OnboardingFlow() {
                     <ArrowLeft size={24} />
                 </button>
             )}
-            <h1 className="text-3xl font-black text-aya-primary tracking-tighter italic">aya</h1>
+            <Link href="/">
+              <h1 className="text-3xl font-black text-aya-primary tracking-tighter italic cursor-pointer">aya</h1>
+            </Link>
         </div>
         {!isJoining && !isExploring && (
             <div className="flex gap-1">

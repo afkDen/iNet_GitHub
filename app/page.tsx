@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Sparkles, Utensils, Users, MapPin, ArrowRight } from 'lucide-react';
 
 export default function LandingPage() {
@@ -23,9 +24,11 @@ export default function LandingPage() {
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.2 }}
             >
-              <h1 className="text-8xl font-black text-aya-primary tracking-tighter italic select-none">
-                aya
-              </h1>
+              <Link href="/">
+                <h1 className="text-8xl font-black text-aya-primary tracking-tighter italic select-none cursor-pointer">
+                  aya
+                </h1>
+              </Link>
             </motion.div>
             
             <motion.div
