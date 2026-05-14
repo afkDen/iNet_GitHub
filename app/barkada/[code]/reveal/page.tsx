@@ -120,12 +120,12 @@ export default function BarkadaRevealPage() {
             opacity: 1,
             transition: { staggerChildren: 0.15, delayChildren: 0.3 }
         }
-    };
+    } as const;
 
     const itemVariants = {
         hidden: { opacity: 0, y: 30 },
-        show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 200, damping: 20 } }
-    };
+        show: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 200, damping: 20 } }
+    } as const;
 
     return (
         <div className="min-h-screen bg-[#F5F0E8] flex flex-col items-center px-4 py-8 max-w-[430px] mx-auto">
