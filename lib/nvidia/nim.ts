@@ -3,7 +3,7 @@ import { Establishment, SessionContext } from '@/types';
 
 export const nimClient = new OpenAI({
     baseURL: 'https://integrate.api.nvidia.com/v1',
-    apiKey: process.env.NVIDIA_API_KEY,
+    apiKey: process.env.NVIDIA_NIM_API_KEY || process.env.NVIDIA_API_KEY,
 });
 
 export const NIM_MODEL = process.env.NVIDIA_NIM_MODEL || 'google/gemma-4-31b-it';
@@ -44,6 +44,24 @@ Group size hints: "kami dalawa/tatlo" -> 2 or 3, "grupo/barkada" -> 5, "pamilya"
 // Simple response cache to avoid redundant NIM calls
 const vibeCache = new Map<string, string[]>();
 
+function extractJSON(text: string) {
+    try {
+        // Try direct parse
+        return JSON.parse(text);
+    } catch {
+        // Try extracting from markdown blocks
+        const match = text.match(/```json\s*([\s\S]*?)\s*```/) || text.match(/```\s*([\s\S]*?)\s*```/);
+        if (match) {
+            try {
+                return JSON.parse(match[1]);
+            } catch {
+                return null;
+            }
+        }
+        return null;
+    }
+}
+
 export async function generateVibeTags(establishment: Partial<Establishment>, context?: SessionContext): Promise<string[]> {
     if (!establishment.id) return establishment.vibe_tags || [];
 
@@ -67,12 +85,12 @@ export async function generateVibeTags(establishment: Partial<Establishment>, co
         const content = response.choices[0]?.message?.content;
         if (!content) throw new Error('Empty response from NIM');
 
-        const tags = JSON.parse(content) as string[];
+        const tags = extractJSON(content);
         if (Array.isArray(tags)) {
             vibeCache.set(establishment.id, tags);
             return tags;
         }
-        throw new Error('Invalid JSON format');
+        throw new Error('Invalid JSON format from NIM');
     } catch (error) {
         console.error('[NIM generateVibeTags Error]:', error);
         return establishment.vibe_tags || [];
@@ -94,8 +112,8 @@ export async function parseNaturalLanguageContext(input: string, base: SessionCo
         const content = response.choices[0]?.message?.content;
         if (!content) return {};
 
-        const updates = JSON.parse(content) as Partial<SessionContext>;
-        return updates;
+        const updates = extractJSON(content);
+        return updates || {};
     } catch (error) {
         console.error('[NIM parseNaturalLanguageContext Error]:', error);
         return {};

@@ -34,6 +34,13 @@ function OnboardingFlow() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ context: customContext })
       });
+      
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error('Session API failed:', res.status, errorText);
+        throw new Error(`Session creation failed: ${res.status}`);
+      }
+
       const data = await res.json();
       
       if (data.session) {
@@ -44,6 +51,12 @@ function OnboardingFlow() {
            headers: { 'Content-Type': 'application/json' },
            body: JSON.stringify({ nickname: 'Host' })
         });
+        
+        if (!joinRes.ok) {
+            console.error('Join API failed:', joinRes.status);
+            throw new Error(`Join failed: ${joinRes.status}`);
+        }
+
         const joinData = await joinRes.json();
         if (joinData.participant) {
             setParticipant(joinData.participant);
@@ -86,6 +99,7 @@ function OnboardingFlow() {
       }
     } catch (err) {
       console.error('Session creation failed:', err);
+      alert('May problem sa pag-start ng session. Try again!');
     } finally {
       setLoading(false);
     }
@@ -152,13 +166,17 @@ function OnboardingFlow() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ input: searchText, base: context })
       });
+      
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error('AI Context API failed:', res.status, errorText);
+        throw new Error(`AI Context failed: ${res.status}`);
+      }
+
       const data = await res.json();
       if (data.context) {
         const newContext = { ...context, ...data.context } as SessionContext;
         
-        // If mode is not set or we're fast-tracking, default to solo or use the AI's hint
-        // Note: NIM prompt doesn't explicitly return mode yet, so we default to solo
-        // unless it's lakbay outing type.
         if (newContext.outing_type === 'full_day') {
             newContext.mode = 'lakbay';
         } else if (!newContext.mode) {
@@ -170,7 +188,8 @@ function OnboardingFlow() {
       }
     } catch (err) {
       console.error('NLP Parse failed:', err);
-      handleNext();
+      // Don't call handleNext() here if it was a real error, let the user know
+      alert('Aya had trouble understanding that. Can you try again?');
     } finally {
       setLoading(false);
     }
