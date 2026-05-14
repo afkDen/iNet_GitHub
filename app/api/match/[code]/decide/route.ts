@@ -1,10 +1,10 @@
 export async function GET(
     req: Request,
-    { params }: { params: { code: string } }
+    { params }: { params: Promise<{ code: string }> }
 ) {
 
     try {
-        const { code } = params;
+        const { code } = await params;
         const supabase = await (await import('@/lib/supabase/server')).createClient();
         const { computeMatches, ayaDecides } = await import('@/lib/swipe/scorer');
         const { establishments } = await import('@/lib/data/establishments');
