@@ -9,7 +9,8 @@ import ContextCards from '@/components/ui/ContextCards';
 import EstablishmentCard from '@/components/ui/EstablishmentCard';
 import EstablishmentDetailModal from '@/components/ui/EstablishmentDetailModal';
 import { establishments } from '@/lib/data/establishments';
-import { SessionMode, OutingType, BudgetTier, Establishment } from '@/types';
+import { buildCardStack } from '@/lib/session/manager';
+import { SessionMode, OutingType, BudgetTier, Establishment, SessionContext } from '@/types';
 import { Utensils, Beer, Palmtree, Clock, Wallet, Navigation, Search, Sparkles, Loader2, Users, ArrowRight, ArrowLeft, MapPin } from 'lucide-react';
 import { useSession } from '@/components/providers/SessionProvider';
 function OnboardingFlow() {
@@ -25,7 +26,7 @@ function OnboardingFlow() {
   const [isExploring, setIsExploring] = useState(false);
   const [selectedEstablishment, setSelectedEstablishment] = useState<Establishment | null>(null);
 
-  const finalizeSession = async (customContext = context) => {
+  const finalizeSession = async (customContext = context, winnerId?: string) => {
     setLoading(true);
     try {
       const res = await fetch('/api/session', {
@@ -44,7 +45,36 @@ function OnboardingFlow() {
            body: JSON.stringify({ nickname: 'Host' })
         });
         const joinData = await joinRes.json();
-        if (joinData.participant) setParticipant(joinData.participant);
+        if (joinData.participant) {
+            setParticipant(joinData.participant);
+            
+            if (winnerId) {
+                // Record a "Direct AI Pick" swipe
+                await fetch('/api/swipe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_id: data.session.id,
+                        participant_id: joinData.participant.id,
+                        establishment_id: winnerId,
+                        direction: 'right',
+                        speed_ms: 100,
+                        hesitation_ms: 0,
+                        drag_distance: 500
+                    })
+                });
+
+                // Mark as done
+                await fetch(`/api/participants/${joinData.participant.id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'done' })
+                });
+
+                router.push('/reveal');
+                return;
+            }
+        }
         
         if (customContext.mode === 'solo') {
           router.push('/solo');
@@ -124,8 +154,19 @@ function OnboardingFlow() {
       });
       const data = await res.json();
       if (data.context) {
-        setContext(data.context);
-        handleNext();
+        const newContext = { ...context, ...data.context } as SessionContext;
+        
+        // If mode is not set or we're fast-tracking, default to solo or use the AI's hint
+        // Note: NIM prompt doesn't explicitly return mode yet, so we default to solo
+        // unless it's lakbay outing type.
+        if (newContext.outing_type === 'full_day') {
+            newContext.mode = 'lakbay';
+        } else if (!newContext.mode) {
+            newContext.mode = 'solo';
+        }
+
+        setContext(newContext);
+        await finalizeSession(newContext);
       }
     } catch (err) {
       console.error('NLP Parse failed:', err);

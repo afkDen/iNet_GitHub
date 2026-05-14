@@ -35,6 +35,8 @@ Return ONLY valid JSON with no explanation, no markdown, no backticks:
   "vibe_keywords": []
 }
 
+Allowed vibe_keywords: budget-friendly, hidden gem, open late, family-friendly, instagrammable, chill, may parking, kid-friendly, date spot, barkada favorite, good for solo, quick service, community pick, outdoor seating, pet-friendly, live music, late night, near commute
+
 Filipino budget hints: "tipid/mura/wala masyadong budget" -> "tipid", "kaya naman/ok lang" -> "mid", "ok kahit mahal/bahala na" -> "bahala_na"
 Group size hints: "kami dalawa/tatlo" -> 2 or 3, "grupo/barkada" -> 5, "pamilya" -> 4, "solo/ako lang" -> 1
 `;

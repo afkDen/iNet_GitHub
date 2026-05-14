@@ -33,6 +33,7 @@ export type SessionContext = {
     distance_km: number;
     time_of_day: 'lunch' | 'merienda' | 'dinner' | 'anytime';
     natural_language?: string;
+    vibe_keywords?: string[];
 };
 
 export type Session = {
@@ -52,6 +53,7 @@ export type Participant = {
     session_id: string;
     nickname: string;
     status: 'joined' | 'swiping' | 'done';
+    is_done: boolean;
     created_at: string;
 };
 
