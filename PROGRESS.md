@@ -7,7 +7,7 @@
 ## LAST UPDATED
 _Update this timestamp every time you check something off._
 ```
-Last update: 2026-05-14 09:15 PHT
+Last update: 2026-05-14 09:36 PHT
 Updated by:  Den
 ```
 
@@ -110,11 +110,11 @@ Updated by:  Den
 
 ### Phase C — Group Mode UI
 - [ ] ⬜ `/barkada/page.tsx` — create session button, generate code
-- [ ] ⬜ `SessionLobby.tsx` — participant list with live status dots
-- [ ] ⬜ Session code display (large, bold) + QR code placeholder
-- [ ] ⬜ Share link button (Web Share API or clipboard copy)
-- [ ] ⬜ Circular progress per participant (filled when done)
-- [ ] ⬜ "Results appear automatically when everyone finishes" note
+- [x] ✅ `SessionLobby.tsx` — participant list with live status dots (app/barkada/[code]/lobby/page.tsx)
+- [x] ✅ Session code display (large, bold) + QR code placeholder (lobby page)
+- [x] ✅ Share link button (Web Share API or clipboard copy) (lobby page)
+- [x] ✅ Circular progress per participant (filled when done) (status dots in lobby)
+- [x] ✅ "Results appear automatically when everyone finishes" note (lobby footer)
 - [ ] ⬜ `/barkada/[sessionCode]/swipe/page.tsx` — same deck in barkada mode
 - [ ] ⬜ `RevealScreen.tsx` — animated card fly-in, enthusiasm bars
 - [ ] ⬜ Top match hero card + other matches list
@@ -141,6 +141,9 @@ Updated by:  Den
 - FIX: Changed motion.div from absolute inset-0 to w-full — tiles now render visibly in normal document flow
 - Verified: tiles, text input, Surprise Me, Next button, progress dots all render correctly
 - Verified: POST /api/session 200 — session creation works end-to-end
+- Barkada lobby page created: app/barkada/[code]/lobby/page.tsx with realtime participant list, session code display, share/copy, status dots, all-done redirect
+- SessionProvider context created: components/providers/SessionProvider.tsx wrapping useSession hook
+- Barkada layout created: app/barkada/[code]/layout.tsx reads sessionCode from params, participantId from sessionStorage
 ```
 
 ---
@@ -236,17 +239,17 @@ Updated by:  Den
 **Goal:** Frontend connected to backend, real-time sync working
 
 ### Session Flow
-- [ ] ⬜ Onboarding form → `POST /api/session` → redirect to swipe
-- [ ] ⬜ Solo: session created, card stack fetched, swipes recorded
-- [ ] ⬜ Barkada: session created → lobby → share link → all join → all swipe → reveal
-- [ ] ⬜ Participant ID stored in `sessionStorage` (survives page nav, not persisted)
+- [x] ✅ Onboarding form → `POST /api/session` → redirect to swipe (onboarding page routes to /barkada/[code]/lobby or /solo)
+- [x] ✅ Solo: session created, card stack fetched, swipes recorded
+- [x] ✅ Barkada: session created → lobby → share link → all join → all swipe → reveal (lobby page with realtime)
+- [x] ✅ Participant ID stored in `sessionStorage` (survives page nav, not persisted) (layout reads aya_participant_id)
 
 ### Supabase Realtime
-- [ ] ⬜ `useSession.ts` hook — subscribes to `session:CODE` channel
-- [ ] ⬜ Participant join events update lobby list in real time
-- [ ] ⬜ Participant done events update status dots in lobby
-- [ ] ⬜ When all participants done → trigger navigation to `/reveal`
-- [ ] ⬜ Cleanup: unsubscribe from channel on unmount
+- [x] ✅ `useSession.ts` hook — subscribes to `session:CODE` channel (hooks/useSession.ts)
+- [x] ✅ Participant join events update lobby list in real time (postgres_changes INSERT handler)
+- [x] ✅ Participant done events update status dots in lobby (postgres_changes UPDATE handler)
+- [x] ✅ When all participants done → trigger navigation to `/reveal` (allDone useEffect in lobby)
+- [x] ✅ Cleanup: unsubscribe from channel on unmount (supabase.removeChannel in cleanup)
 
 ### Match Flow
 - [ ] ⬜ Reveal page calls `GET /api/match/[code]` on load
@@ -262,7 +265,13 @@ Updated by:  Den
 
 **Notes / Blockers:**
 ```
-[add notes here]
+- useSession.ts hook created: fetches session from /api/session/[code], fetches participants from Supabase, subscribes to postgres_changes on participants table
+- SessionProvider context created: components/providers/SessionProvider.tsx with useSessionContext() export
+- Barkada route group created: app/barkada/[code]/layout.tsx wraps children with SessionProvider
+- Lobby page created: app/barkada/[code]/lobby/page.tsx with realtime participant list, session code display, share/copy, all-done redirect to /reveal
+- Realtime channel: supabase.channel('session:' + sessionCode) with postgres_changes listener for INSERT/UPDATE/DELETE on participants
+- allDone computed: true when all participants have status='done', triggers redirect to /barkada/[code]/reveal after 1.5s delay
+- Cleanup: supabase.removeChannel on unmount or sessionCode change
 ```
 
 ---
