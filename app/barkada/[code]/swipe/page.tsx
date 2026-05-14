@@ -234,6 +234,7 @@ export default function BarkadaSwipePage() {
                     establishments={establishments}
                     context={sessionContext}
                     sessionId={sessionId}
+                    sessionCode={sessionCode}
                     participantId={participantId}
                     onComplete={handleComplete}
                 />

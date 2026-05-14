@@ -14,20 +14,27 @@ export function scoreSwipe(speedMs: number, dragDistance: number): number {
  * Computes matches by grouping right swipes and ranking them by count and enthusiasm.
  */
 export function computeMatches(
-    swipes: SwipeRecord[],
+    swipes: any[],
     participants: Participant[],
     establishments: Establishment[]
 ): MatchResult[] {
     const rightSwipes = swipes.filter(s => s.direction === 'right');
     const establishmentMap = new Map(establishments.map(e => [e.id, e]));
 
-    // Group right swipes by establishment_id
-    const groups = new Map<string, SwipeRecord[]>();
+    // Group right swipes by venue_id (DB column name) or establishment_id (type field)
+    const groups = new Map<string, any[]>();
     for (const swipe of rightSwipes) {
-        if (!groups.has(swipe.establishment_id)) {
-            groups.set(swipe.establishment_id, []);
+        // The DB column is venue_id, but the type uses establishment_id.
+        // Support both so this works regardless of which field is populated.
+        const venueId = swipe.venue_id || swipe.establishment_id;
+        if (!venueId) {
+            console.warn('[computeMatches] Swipe record missing venue_id/establishment_id:', swipe);
+            continue;
         }
-        groups.get(swipe.establishment_id)!.push(swipe);
+        if (!groups.has(venueId)) {
+            groups.set(venueId, []);
+        }
+        groups.get(venueId)!.push(swipe);
     }
 
     const results: MatchResult[] = [];
@@ -38,7 +45,7 @@ export function computeMatches(
 
         const rightSwipeCount = estSwipes.length;
         const enthusiasmScore = estSwipes.reduce((sum, s) =>
-            sum + scoreSwipe(s.speed_ms, s.drag_distance), 0
+            sum + scoreSwipe(s.swipe_speed_ms ?? s.speed_ms ?? 0, s.drag_distance ?? 0), 0
         );
 
         results.push({

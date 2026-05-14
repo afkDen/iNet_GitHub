@@ -163,6 +163,11 @@ ALTER PUBLICATION supabase_realtime ADD TABLE sessions;
 ALTER PUBLICATION supabase_realtime ADD TABLE participants;
 ALTER PUBLICATION supabase_realtime ADD TABLE swipes;
 
+-- REPLICA IDENTITY FULL is required for Postgres Changes to include old row data in UPDATE events.
+-- Without this, UPDATE payloads will have empty old data and the client won't detect changes correctly.
+ALTER TABLE participants REPLICA IDENTITY FULL;
+ALTER TABLE sessions REPLICA IDENTITY FULL;
+
 -- ============================================================================
 -- 5. HELPER FUNCTIONS
 -- ============================================================================

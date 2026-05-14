@@ -204,7 +204,7 @@ export default function OnboardingPage() {
             .then((res) => res.json())
             .then((data) => {
                 const code = data.session?.code;
-                router.push(`/solo?sessionCode=${code}`);
+                router.push(`/solo?session=${code}`);
             })
             .catch(() => {
                 setIsSubmitting(false);

@@ -24,12 +24,15 @@ export async function POST(
         }
 
         // 2. Insert participant
+        // The DB column is 'nickname' (matching the Participant type).
+        // schema.sql has 'display_name' but the live DB may use 'nickname'.
         const { data: participant, error: participantError } = await supabase
             .from('participants')
             .insert({
                 session_id: session.id,
-                display_name: nickname,
-                status: 'joined'
+                nickname: nickname,
+                status: 'joined',
+                is_done: false,
             })
             .select()
             .single();

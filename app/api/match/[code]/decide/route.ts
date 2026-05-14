@@ -1,13 +1,15 @@
+import { NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/server';
+import { computeMatches, ayaDecides } from '@/lib/swipe/scorer';
+import { establishments } from '@/lib/data/establishments';
+
 export async function GET(
     req: Request,
     { params }: { params: Promise<{ code: string }> }
 ) {
-
     try {
         const { code } = await params;
-        const supabase = await (await import('@/lib/supabase/server')).createClient();
-        const { computeMatches, ayaDecides } = await import('@/lib/swipe/scorer');
-        const { establishments } = await import('@/lib/data/establishments');
+        const supabase = await createClient();
 
         // 1. Fetch session by code
         const { data: session, error: sessionError } = await supabase
@@ -36,9 +38,14 @@ export async function GET(
 
         if (swipesError) throw swipesError;
 
-        // 4. Get establishments in card_stack
-        const stackIds = session.card_stack as string[];
-        const sessionEstablishments = establishments.filter(e => stackIds.includes(e.id));
+        // 4. Get establishments in card_stack (with fallback)
+        const stackIds = (session as any).card_stack || [];
+        let sessionEstablishments = establishments.filter(e => stackIds.includes(e.id));
+
+        // Fallback: if card_stack is empty, use all establishments
+        if (sessionEstablishments.length === 0) {
+            sessionEstablishments = establishments;
+        }
 
         // 5. Compute matches
         const matches = computeMatches(swipes || [], participants || [], sessionEstablishments);
@@ -65,5 +72,3 @@ export async function GET(
         return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
     }
 }
-
-import { NextResponse } from 'next/server';

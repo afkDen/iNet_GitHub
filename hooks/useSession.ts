@@ -75,7 +75,7 @@ export function useSession(
                         .from('participants')
                         .select('*')
                         .eq('session_id', fetchedSession.id)
-                        .order('joined_at', { ascending: true });
+                        .order('created_at', { ascending: true });
 
                 if (participantsError) {
                     console.error(
@@ -92,6 +92,12 @@ export function useSession(
                 setAllDone(checkAllDone(participantList));
 
                 // 3. Set up Supabase Realtime channel
+                // Guard: only subscribe when sessionId is a non-empty string
+                if (!fetchedSession.id) {
+                    console.warn('[useSession] No session ID, skipping realtime subscription');
+                    return;
+                }
+
                 const channelName = `session:${sessionCode}`;
                 channel = supabase.channel(channelName);
 
@@ -149,6 +155,26 @@ export function useSession(
                             setAllDone(checkAllDone(updated));
                             return updated;
                         });
+                    }
+                );
+
+                // Also listen for session status changes (completed → navigate to reveal)
+                channel.on(
+                    'postgres_changes',
+                    {
+                        event: 'UPDATE',
+                        schema: 'public',
+                        table: 'sessions',
+                        filter: `id=eq.${fetchedSession.id}`,
+                    },
+                    (payload) => {
+                        if (!mountedRef.current) return;
+                        const updatedSession = payload.new as any;
+                        if (updatedSession && updatedSession.status === 'completed') {
+                            console.log('[useSession] Session completed, updating local state');
+                            setSession((prev) => prev ? { ...prev, status: 'completed' } : prev);
+                            setAllDone(true);
+                        }
                     }
                 );
 

@@ -25,30 +25,43 @@ export async function POST(req: NextRequest) {
                 mode: context.mode,
                 filters: context,
                 status: 'active',
+                card_stack: cardStackIds,
             })
             .select()
             .single();
 
         if (sessionError) {
             console.error('[Session Create Error]', sessionError);
+            // If card_stack column doesn't exist, try without it
+            if (sessionError.message?.includes('card_stack')) {
+                const { data: session2, error: sessionError2 } = await supabase
+                    .from('sessions')
+                    .insert({
+                        code,
+                        mode: context.mode,
+                        filters: context,
+                        status: 'active',
+                    })
+                    .select()
+                    .single();
+
+                if (sessionError2) {
+                    console.error('[Session Create Error - fallback]', sessionError2);
+                    return NextResponse.json({ error: 'Database error creating session' }, { status: 500 });
+                }
+
+                // Store card_stack in filters JSONB as fallback
+                await supabase
+                    .from('sessions')
+                    .update({ filters: { ...context, _card_stack: cardStackIds } })
+                    .eq('id', session2.id);
+
+                return NextResponse.json({
+                    session: session2,
+                    cardStack
+                });
+            }
             return NextResponse.json({ error: 'Database error creating session' }, { status: 500 });
-        }
-
-        // The prompt asks to insert card_stack: [array of IDs]. 
-        // Looking at DESIGN.md schema, 'sessions' table doesn't have 'card_stack' column.
-        // However, the prompt explicitly asks for it. I will assume the DB was updated 
-        // or I should use the 'filters' JSONB to store it if not present, 
-        // but for the sake of the prompt's specific requirement, I'll try to update the session.
-
-        const { error: updateError } = await supabase
-            .from('sessions')
-            .update({
-                card_stack: cardStackIds
-            })
-            .eq('id', session.id);
-
-        if (updateError) {
-            console.warn('[Session Update Warning] card_stack column might be missing:', updateError.message);
         }
 
         return NextResponse.json({

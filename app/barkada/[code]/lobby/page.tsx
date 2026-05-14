@@ -1,7 +1,7 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useSessionContext } from '@/components/providers/SessionProvider';
 import { supabase } from '@/lib/supabase/client';
 
@@ -85,26 +85,33 @@ export default function BarkadaLobbyPage() {
     const { session, participants, allDone, loading, error } =
         useSessionContext();
 
+    const hasJoinedRef = useRef(false);
+
     useEffect(() => {
         if (!sessionCode) return;
 
+        // Guard: prevent double-joining (React StrictMode double-invoke, navigation back-forward)
+        const storedParticipantId = sessionStorage.getItem('aya_participant_id');
+        if (storedParticipantId || hasJoinedRef.current) {
+            return;
+        }
+
+        hasJoinedRef.current = true;
+
         const joinSession = async () => {
-            const storedParticipantId = sessionStorage.getItem('aya_participant_id');
-            if (!storedParticipantId) {
-                try {
-                    const res = await fetch(`/api/session/${sessionCode}/join`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ nickname: 'Barkada Member' }),
-                    });
-                    if (res.ok) {
-                        const data = await res.json();
-                        const pid = data.participant?.id;
-                        if (pid) sessionStorage.setItem('aya_participant_id', pid);
-                    }
-                } catch (err) {
-                    console.error('Auto-join error:', err);
+            try {
+                const res = await fetch(`/api/session/${sessionCode}/join`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nickname: 'Barkada Member' }),
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    const pid = data.participant?.id;
+                    if (pid) sessionStorage.setItem('aya_participant_id', pid);
                 }
+            } catch (err) {
+                console.error('Auto-join error:', err);
             }
         };
 

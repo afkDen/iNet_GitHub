@@ -40,8 +40,14 @@ export async function GET(
 
         // 4. Get establishments in card_stack
         // The session.card_stack is an array of IDs. We filter the local establishments data.
-        const stackIds = session.card_stack as string[];
-        const sessionEstablishments = establishments.filter(e => stackIds.includes(e.id));
+        const stackIds = (session as any).card_stack || [];
+        let sessionEstablishments = establishments.filter(e => stackIds.includes(e.id));
+
+        // Fallback: if card_stack is empty, use all establishments
+        if (sessionEstablishments.length === 0) {
+            console.warn('[Match API] card_stack empty, using all establishments as fallback');
+            sessionEstablishments = establishments;
+        }
 
         // 5. Compute matches
         const matches = computeMatches(swipes || [], participants || [], sessionEstablishments);

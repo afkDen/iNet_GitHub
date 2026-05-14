@@ -18,7 +18,8 @@ interface SwipeCardProps {
     isTop: boolean;
 }
 
-const SWIPE_THRESHOLD = 100;
+const SWIPE_THRESHOLD = 80;
+const VELOCITY_THRESHOLD = 400;
 const MAX_ROTATION = 15;
 
 export default function SwipeCard({
@@ -30,6 +31,10 @@ export default function SwipeCard({
     onUndo,
     isTop,
 }: SwipeCardProps) {
+    if (!establishment) {
+        console.error('[SwipeCard] Received undefined establishment prop');
+        return null;
+    }
     const { tags, loading: vibeLoading } = useVibeAI(establishment, context);
     const startTimeRef = useRef<number>(Date.now());
 
@@ -46,10 +51,12 @@ export default function SwipeCard({
         (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
             const speedMs = Date.now() - startTimeRef.current;
             const dragDistance = Math.abs(info.offset.x);
+            const velocityX = Math.abs(info.velocity.x);
 
-            if (info.offset.x > SWIPE_THRESHOLD) {
+            // Commit swipe if past threshold OR fast flick
+            if (info.offset.x > SWIPE_THRESHOLD || (info.offset.x > 0 && velocityX > VELOCITY_THRESHOLD)) {
                 onSwipe('right', speedMs, dragDistance);
-            } else if (info.offset.x < -SWIPE_THRESHOLD) {
+            } else if (info.offset.x < -SWIPE_THRESHOLD || (info.offset.x < 0 && velocityX > VELOCITY_THRESHOLD)) {
                 onSwipe('left', speedMs, dragDistance);
             }
             // If not past threshold, Framer Motion springs back automatically

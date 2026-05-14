@@ -9,6 +9,7 @@ interface SwipeDeckProps {
     establishments: Establishment[];
     context: SessionContext;
     sessionId: string;
+    sessionCode: string;
     participantId: string;
     onComplete: () => void;
 }
@@ -24,6 +25,7 @@ export default function SwipeDeck({
     establishments,
     context,
     sessionId,
+    sessionCode,
     participantId,
     onComplete,
 }: SwipeDeckProps) {
@@ -38,27 +40,40 @@ export default function SwipeDeck({
     const currentEstablishment = establishments[currentIndex] ?? null;
 
     const postSwipe = useCallback(
-        async (direction: 'left' | 'right', speedMs: number, dragDistance: number) => {
-            if (!currentEstablishment) return;
+        async (direction: 'left' | 'right', speedMs: number, dragDistance: number, venueId: string) => {
+            if (!venueId) {
+                console.error('[SwipeDeck] postSwipe called with empty venueId');
+                return;
+            }
+
+            if (!participantId) {
+                console.error('[SwipeDeck] postSwipe called with empty participantId — swipe will not be recorded');
+                return;
+            }
 
             try {
-                await fetch('/api/swipe', {
+                const res = await fetch('/api/swipe', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         session_id: sessionId,
                         participant_id: participantId,
-                        establishment_id: currentEstablishment.id,
+                        establishment_id: venueId,
                         direction,
                         speed_ms: speedMs,
                         drag_distance: dragDistance,
                     }),
                 });
+
+                if (!res.ok) {
+                    const errData = await res.json().catch(() => ({}));
+                    console.error('[SwipeDeck] POST /api/swipe failed:', res.status, errData);
+                }
             } catch (err) {
-                console.error('Failed to record swipe:', err);
+                console.error('[SwipeDeck] Failed to record swipe (network error):', err);
             }
         },
-        [currentEstablishment, sessionId, participantId]
+        [sessionId, participantId]
     );
 
     const handleSwipe = useCallback(
@@ -68,7 +83,7 @@ export default function SwipeDeck({
             setIsExiting(true);
 
             // Record swipe to server
-            await postSwipe(direction, speedMs, dragDistance);
+            await postSwipe(direction, speedMs, dragDistance, currentEstablishment.id);
 
             // Push to undo stack
             setUndoStack((prev) => [
@@ -106,12 +121,13 @@ export default function SwipeDeck({
             setTimeout(() => {
                 const nextIndex = currentIndex + 1;
                 if (nextIndex >= totalCards) {
-                    // Mark participant as done
-                    fetch(`/api/participants/${participantId}`, {
-                        method: 'PATCH',
+                    // Mark participant as done via the session done endpoint
+                    // This also checks if all participants are done and updates session status
+                    fetch(`/api/session/${sessionCode}/done`, {
+                        method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ status: 'done' }),
-                    }).catch((err) => console.error('Failed to mark done:', err));
+                        body: JSON.stringify({ participant_id: participantId }),
+                    }).catch((err) => console.error('[SwipeDeck] Failed to mark done:', err));
 
                     onComplete();
                 } else {

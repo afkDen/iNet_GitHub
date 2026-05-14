@@ -20,8 +20,8 @@ function SoloPageContent() {
 
     useEffect(() => {
         if (!sessionCode) {
-            setError('No session code provided. Please start from the beginning.');
-            setLoading(false);
+            // Redirect to onboarding if no session code
+            router.replace('/onboarding');
             return;
         }
 
@@ -170,6 +170,7 @@ function SoloPageContent() {
                     establishments={establishments}
                     context={sessionContext}
                     sessionId={sessionId}
+                    sessionCode={sessionCode}
                     participantId={participantId}
                     onComplete={handleComplete}
                 />
