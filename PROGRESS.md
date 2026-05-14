@@ -109,17 +109,17 @@ Updated by:  Den
 - [x] ✅ Solo match screen — single card reveal + directions button
 
 ### Phase C — Group Mode UI
-- [ ] ⬜ `/barkada/page.tsx` — create session button, generate code
+- [x] ✅ `/barkada/page.tsx` — create session button, generate code
 - [x] ✅ `SessionLobby.tsx` — participant list with live status dots (app/barkada/[code]/lobby/page.tsx)
 - [x] ✅ Session code display (large, bold) + QR code placeholder (lobby page)
 - [x] ✅ Share link button (Web Share API or clipboard copy) (lobby page)
 - [x] ✅ Circular progress per participant (filled when done) (status dots in lobby)
 - [x] ✅ "Results appear automatically when everyone finishes" note (lobby footer)
-- [ ] ⬜ `/barkada/[sessionCode]/swipe/page.tsx` — same deck in barkada mode
-- [ ] ⬜ `RevealScreen.tsx` — animated card fly-in, enthusiasm bars
-- [ ] ⬜ Top match hero card + other matches list
-- [ ] ⬜ "Aya Decides — lock it in" button
-- [ ] ⬜ "Pinakamalapit" fallback prompt (no unanimous match)
+- [x] ✅ `/barkada/[sessionCode]/swipe/page.tsx` — same deck in barkada mode
+- [x] ✅ `RevealScreen.tsx` — animated card fly-in, enthusiasm bars
+- [x] ✅ Top match hero card + other matches list
+- [x] ✅ "Aya Decides — lock it in" button
+- [x] ✅ "Pinakamalapit" fallback prompt (no unanimous match)
 
 ### Phase D — Bottom Navigation
 - [ ] ⬜ `BottomNav.tsx` — DISCOVER / PIN / HISTORY tabs
@@ -252,9 +252,9 @@ Updated by:  Den
 - [x] ✅ Cleanup: unsubscribe from channel on unmount (supabase.removeChannel in cleanup)
 
 ### Match Flow
-- [ ] ⬜ Reveal page calls `GET /api/match/[code]` on load
-- [ ] ⬜ Renders matched establishments sorted by enthusiasm score
-- [ ] ⬜ Aya Decides button calls `GET /api/match/[code]/decide`
+- [x] ✅ Reveal page calls `GET /api/match/[code]` on load
+- [x] ✅ Renders matched establishments sorted by enthusiasm score
+- [x] ✅ Aya Decides button calls `GET /api/match/[code]/decide`
 - [ ] ⬜ "Open in Google Maps" button links to maps URL for matched venue
 
 ### Error Handling

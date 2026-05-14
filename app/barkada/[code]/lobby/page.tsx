@@ -85,6 +85,32 @@ export default function BarkadaLobbyPage() {
     const { session, participants, allDone, loading, error } =
         useSessionContext();
 
+    useEffect(() => {
+        if (!sessionCode) return;
+
+        const joinSession = async () => {
+            const storedParticipantId = sessionStorage.getItem('aya_participant_id');
+            if (!storedParticipantId) {
+                try {
+                    const res = await fetch(`/api/session/${sessionCode}/join`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ nickname: 'Barkada Member' }),
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        const pid = data.participant?.id;
+                        if (pid) sessionStorage.setItem('aya_participant_id', pid);
+                    }
+                } catch (err) {
+                    console.error('Auto-join error:', err);
+                }
+            }
+        };
+
+        joinSession();
+    }, [sessionCode]);
+
     // When all participants are done, redirect to reveal
     useEffect(() => {
         if (allDone && session) {
@@ -393,6 +419,26 @@ export default function BarkadaLobbyPage() {
                     Results appear automatically once everyone finishes.
                     No one sees anyone else's choices until then.
                 </p>
+            </div>
+
+            {/* Bottom CTA */}
+            <div className="mt-8">
+                <button
+                    onClick={async () => {
+                        const pid = sessionStorage.getItem('aya_participant_id');
+                        if (pid) {
+                            await fetch(`/api/participants/${pid}`, {
+                                method: 'PATCH',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ status: 'swiping' }),
+                            });
+                            router.push(`/barkada/${sessionCode}/swipe`);
+                        }
+                    }}
+                    className="w-full py-4 rounded-2xl bg-[#E8622A] text-white font-bold shadow-lg active:scale-95 transition-transform"
+                >
+                    Magsimula
+                </button>
             </div>
         </div>
     );
