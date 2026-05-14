@@ -1,27 +1,20 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Camera, MapPin, Sparkles, Image as ImageIcon, X, CheckCircle2 } from 'lucide-react';
+import { MapPin, Sparkles, X, CheckCircle2, Camera } from 'lucide-react';
 import BottomNav from '@/components/ui/BottomNav';
 
 export default function PinPage() {
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [placeName, setPlaceName] = useState('');
   
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const isFormValid = placeName.trim() !== '' && selectedImage !== null;
 
-  const handleChoice = (type: 'camera' | 'file') => {
-    setIsPopupOpen(false);
-    if (type === 'camera') {
-      cameraInputRef.current?.click();
-    } else {
-      fileInputRef.current?.click();
-    }
+  const handleAddPhotoClick = () => {
+    fileInputRef.current?.click();
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,7 +52,7 @@ export default function PinPage() {
 
         <div className="w-full max-w-sm bg-white p-6 rounded-3xl shadow-xl space-y-6">
           <button 
-            onClick={() => setIsPopupOpen(true)}
+            onClick={handleAddPhotoClick}
             className="w-full aspect-video bg-aya-bg rounded-2xl border-2 border-dashed border-aya-muted/20 flex flex-col items-center justify-center gap-2 text-aya-muted hover:bg-aya-muted/5 transition-colors overflow-hidden relative"
           >
             {selectedImage ? (
@@ -104,37 +97,6 @@ export default function PinPage() {
         </p>
       </main>
 
-      {isPopupOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4">
-          <div className="bg-white w-full max-w-sm rounded-[2rem] p-8 space-y-6 shadow-2xl animate-in fade-in slide-in-from-bottom-10 duration-300">
-            <div className="flex justify-between items-center">
-              <h3 className="text-xl font-black text-black italic">Select Source</h3>
-              <button onClick={() => setIsPopupOpen(false)} className="p-2 hover:bg-aya-bg rounded-full transition-colors">
-                <X size={20} className="text-aya-muted" />
-              </button>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <button 
-                onClick={() => handleChoice('camera')}
-                className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-aya-bg border-2 border-transparent hover:border-aya-primary/20 transition-all active:scale-95 group"
-              >
-                <Camera size={28} className="text-aya-primary" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-black">Camera</span>
-              </button>
-              
-              <button 
-                onClick={() => handleChoice('file')}
-                className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-aya-bg border-2 border-transparent hover:border-aya-primary/20 transition-all active:scale-95 group"
-              >
-                <ImageIcon size={28} className="text-aya-primary" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-black">Files</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {isSuccessOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
           <div className="bg-white w-full max-w-xs rounded-[2rem] p-8 flex flex-col items-center text-center space-y-4 shadow-2xl animate-in fade-in zoom-in duration-300">
@@ -152,7 +114,14 @@ export default function PinPage() {
         </div>
       )}
       
-      <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleFileChange} />
+      <input 
+        type="file" 
+        accept="image/*" 
+        className="hidden" 
+        ref={fileInputRef} 
+        onChange={handleFileChange} 
+      />
+      
       <BottomNav />
     </div>
   );
