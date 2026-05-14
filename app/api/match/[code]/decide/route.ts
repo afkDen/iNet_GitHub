@@ -1,10 +1,10 @@
 export async function GET(
     req: Request,
-    { params }: { params: { code: string } }
+    { params }: { params: Promise<{ code: string }> }
 ) {
 
     try {
-        const { code } = params;
+        const { code } = await params;
         const supabase = await (await import('@/lib/supabase/server')).createClient();
         const { computeMatches, ayaDecides } = await import('@/lib/swipe/scorer');
         const { establishments } = await import('@/lib/data/establishments');
@@ -52,9 +52,14 @@ export async function GET(
         // 7. Aya decides
         const decision = ayaDecides(matches);
 
-        const message = isUnanimous
-            ? "Pinili ng grupo si Aya. You all decided together — Aya just counted."
-            : "Based on collective swipe behavior across all participants.";
+        let message = "";
+        if (session.mode === 'solo') {
+            message = "Aya picked this because you swiped fast and didn't hesitate!";
+        } else {
+            message = isUnanimous
+                ? "Everyone agreed! It's a unanimous group pick."
+                : "Aya picked this based on group consensus and collective enthusiasm.";
+        }
 
         return NextResponse.json({
             decision,
