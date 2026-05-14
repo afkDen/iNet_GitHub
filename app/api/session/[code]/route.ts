@@ -4,10 +4,10 @@ import { establishments } from '@/lib/data/establishments';
 
 export async function GET(
     req: NextRequest,
-    { params }: { params: { code: string } }
+    { params }: { params: Promise<{ code: string }> }
 ) {
     try {
-        const { code } = params;
+        const { code } = await params;
         const supabase = await createClient();
 
         // 1. Fetch session by code

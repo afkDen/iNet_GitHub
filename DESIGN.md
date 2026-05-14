@@ -19,40 +19,92 @@ All primary interactions are reachable by a right thumb on a 375px screen. No tw
 
 ---
 
-## 2. VISUAL DESIGN SYSTEM
+## 2. FOLDER STRUCTURE
 
-### 2.1 Color Palette
-
-```css
-/* Base */
---color-bg:             #FAFAF8;   /* warm off-white, "papel" */
---color-surface:        #FFFFFF;
---color-surface-raised: #F5F3EF;
---color-border:         #E8E5DF;
-
-/* Text */
---color-text-primary:   #1A1A1A;
---color-text-secondary: #6B6B6B;
---color-text-tertiary:  #9E9E9E;
-
-/* Brand */
---color-brand:          #E8622A;   /* warm flame orange — Aya primary */
---color-brand-light:    #FDF0EA;   /* brand tint for selected states */
-
-/* Swipe feedback */
---color-approve:        #2D7A4F;   /* deep green — swipe right glow */
---color-approve-light:  #EAF5EE;
---color-skip:           #C0392B;   /* muted red — swipe left glow */
---color-skip-light:     #FDECEA;
-
-/* Badges */
---color-community:      #4A7FCB;   /* trustworthy blue */
---color-deal:           #D4A017;   /* warm gold */
---color-hidden-gem:     #7B4EA8;   /* discovery purple */
-
-/* Tags */
---color-tag-bg:         #F0EDE8;
---color-tag-text:       #3D3D3D;
+```
+aya/
+├── app/
+│   ├── layout.tsx                  # Root layout, font, global styles
+│   ├── page.tsx                    # Redirect → /onboarding
+│   ├── onboarding/
+│   │   └── page.tsx                # Kwentuhan — context collection
+│   ├── solo/
+│   │   └── page.tsx                # Solo swipe mode
+│   ├── barkada/
+│   │   ├── page.tsx                # Create barkada session
+│   │   ├── [sessionCode]/
+│   │   │   ├── lobby/page.tsx      # Waiting room
+│   │   │   ├── swipe/page.tsx      # Barkada swipe deck
+│   │   │   └── reveal/page.tsx     # Group reveal + Aya Decides
+│   ├── lakbay/
+│   │   └── page.tsx                # SMOKE & MIRRORS — hardcoded itinerary
+│   ├── pin/
+│   │   └── page.tsx                # SMOKE & MIRRORS — fake Drop a Pin
+│   ├── business/
+│   │   └── page.tsx                # SMOKE & MIRRORS — fake business portal
+│   ├── history/
+│   │   └── page.tsx                # SMOKE & MIRRORS — fake session history
+│   └── api/
+│       ├── ai/
+│       │   └── route.ts            # NVIDIA NIM vibe tag generation
+│       ├── session/
+│       │   └── route.ts            # Create/get session
+│       ├── swipe/
+│       │   └── route.ts            # Record swipe
+│       └── match/
+│           └── route.ts            # Check for group match
+├── components/
+│   ├── ui/
+│   │   ├── OutingTypeSelector.tsx  # NEW: Food/Activities/Explore tiles (Landing)
+│   │   ├── SearchInput.tsx         # NEW: Natural language text input
+│   │   ├── ModeSelector.tsx        # Solo / Barkada / Lakbay tiles
+│   │   ├── SwipeCard.tsx           # Single establishment card + Framer
+│   │   ├── SwipeDeck.tsx           # Stack of cards, swipe logic
+│   │   ├── VibeBadge.tsx           # AI vibe tag pill component
+│   │   ├── BottomNav.tsx           # DISCOVER · PIN · HISTORY nav
+│   │   ├── ModeSelector.tsx        # Solo / Barkada / Lakbay tiles
+│   │   ├── ContextCards.tsx        # Onboarding tap tiles
+│   │   ├── SessionLobby.tsx        # Participant list + status dots
+│   │   ├── RevealScreen.tsx        # Animated match reveal
+│   │   ├── ItineraryCard.tsx       # Lakbay expanded itinerary card
+│   │   └── LoadingSpinner.tsx      # Aya branded loading
+│   └── providers/
+│       ├── SessionProvider.tsx     # Supabase session context
+│       └── SwipeProvider.tsx       # Swipe state context
+├── lib/
+│   ├── supabase/
+│   │   ├── client.ts               # Browser Supabase client
+│   │   ├── server.ts               # Server Supabase client
+│   │   └── schema.sql              # Full DB schema
+│   ├── nvidia/
+│   │   └── nim.ts                  # NVIDIA NIM API wrapper
+│   ├── session/
+│   │   └── manager.ts              # Session code generation, logic
+│   ├── swipe/
+│   │   └── scorer.ts               # Aya Decides behavioral scoring
+│   └── data/
+│       ├── establishments.ts       # SEEDED mock data (30–40 spots)
+│       └── itineraries.ts          # HARDCODED sample itineraries (Lakbay)
+├── hooks/
+│   ├── useSwipe.ts                 # Drag/swipe gesture hook
+│   ├── useSession.ts               # Supabase realtime session hook
+│   └── useVibeAI.ts                # NVIDIA NIM vibe tag hook
+├── types/
+│   └── index.ts                    # All shared TypeScript types
+├── styles/
+│   └── globals.css                 # Tailwind base + custom CSS vars
+├── public/
+│   └── images/                     # Placeholder venue photos
+├── PROGRESS.md                     # Living progress tracker (update often)
+├── DESIGN.md                       # This file
+├── PID.md                          # Project initiation document
+├── SMOKE_AND_MIRRORS.md            # What's faked and how
+├── BUILD_GUIDE.md                  # Full Roocode prompt guide
+├── .env.local                      # Environment variables (gitignored)
+├── .env.example                    # Safe env template for GitHub
+├── next.config.js
+├── tailwind.config.ts
+└── package.json
 ```
 
 ### 2.2 Typography
@@ -124,25 +176,35 @@ interface VenueCardProps {
 
 type BadgeType = 'DEAL' | 'COMMUNITY' | 'HIDDEN_GEM'
 ```
-
-**Card anatomy (top → bottom):**
-- Full-bleed photo — 58% card height, `object-cover`
-- Top-left badge row: `DEAL` (gold) | `COMMUNITY` (blue)
-- Venue name (Plus Jakarta Sans, 700, 18px)
-- Category · District (secondary text, 13px)
-- Info row: `📍 0.4km` · `~₱120/head` · `Open now` chip
-- Vibe tags — horizontal scroll, pill chips, max 4 visible
-- Deal text or community confirmation count (if applicable)
-
-**Stack visual math:**
-```typescript
-// Applied via Framer Motion style prop
-const stackStyles = {
-  0: { scale: 1,    y: 0,    opacity: 1,    zIndex: 30 },
-  1: { scale: 0.97, y: 10,   opacity: 0.92, zIndex: 20 },
-  2: { scale: 0.94, y: 20,   opacity: 0.84, zIndex: 10 },
-}
-```
+4.4 Outing Type Selector (New Landing Page)
+┌─────────────────────────────────┐
+│ aya                             │
+│                                 │
+│ Where are you headed            │
+│ today?                          │
+│ Pick your outing type to start. │
+│                                 │
+│ ┌────────────┐ ┌──────────────┐ │
+│ │ 🍲         │ │ 🏛️          │ │
+│ │ Food &     │ │ Activities   │ │
+│ │ Drinks     │ │              │ │
+│ └────────────┘ └──────────────┘ │
+│ ┌────────────┐ ┌──────────────┐ │
+│ │ 🕒         │ │ 📈          │ │
+│ │ Explore    │ │ Full Day     │ │
+│ │            │ │              │ │
+│ └────────────┘ └──────────────┘ │
+│                                 │
+│ ┌─────────────────────────────┐ │
+│ │ 🔍 Or just type it out      │ │
+│ │   "Budget-friendly na..."   │ │
+│ └─────────────────────────────┘ │
+│                                 │
+│ [          Next →             ] │
+│                                 │
+│    Surprise Me — skip all this  │
+└─────────────────────────────────┘
+---
 
 ### 3.2 SwipeActions
 

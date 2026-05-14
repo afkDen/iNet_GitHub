@@ -3,7 +3,7 @@ import { Establishment, SessionContext } from '@/types';
 
 export const nimClient = new OpenAI({
     baseURL: 'https://integrate.api.nvidia.com/v1',
-    apiKey: process.env.NVIDIA_API_KEY,
+    apiKey: process.env.NVIDIA_NIM_API_KEY || process.env.NVIDIA_API_KEY,
 });
 
 export const NIM_MODEL = process.env.NVIDIA_NIM_MODEL || 'google/gemma-4-31b-it';
@@ -35,12 +35,32 @@ Return ONLY valid JSON with no explanation, no markdown, no backticks:
   "vibe_keywords": []
 }
 
+Allowed vibe_keywords: budget-friendly, hidden gem, open late, family-friendly, instagrammable, chill, may parking, kid-friendly, date spot, barkada favorite, good for solo, quick service, community pick, outdoor seating, pet-friendly, live music, late night, near commute
+
 Filipino budget hints: "tipid/mura/wala masyadong budget" -> "tipid", "kaya naman/ok lang" -> "mid", "ok kahit mahal/bahala na" -> "bahala_na"
 Group size hints: "kami dalawa/tatlo" -> 2 or 3, "grupo/barkada" -> 5, "pamilya" -> 4, "solo/ako lang" -> 1
 `;
 
 // Simple response cache to avoid redundant NIM calls
 const vibeCache = new Map<string, string[]>();
+
+function extractJSON(text: string) {
+    try {
+        // Try direct parse
+        return JSON.parse(text);
+    } catch {
+        // Try extracting from markdown blocks
+        const match = text.match(/```json\s*([\s\S]*?)\s*```/) || text.match(/```\s*([\s\S]*?)\s*```/);
+        if (match) {
+            try {
+                return JSON.parse(match[1]);
+            } catch {
+                return null;
+            }
+        }
+        return null;
+    }
+}
 
 export async function generateVibeTags(establishment: Partial<Establishment>, context?: SessionContext): Promise<string[]> {
     if (!establishment.id) return establishment.vibe_tags || [];
@@ -65,12 +85,12 @@ export async function generateVibeTags(establishment: Partial<Establishment>, co
         const content = response.choices[0]?.message?.content;
         if (!content) throw new Error('Empty response from NIM');
 
-        const tags = JSON.parse(content) as string[];
+        const tags = extractJSON(content);
         if (Array.isArray(tags)) {
             vibeCache.set(establishment.id, tags);
             return tags;
         }
-        throw new Error('Invalid JSON format');
+        throw new Error('Invalid JSON format from NIM');
     } catch (error) {
         console.error('[NIM generateVibeTags Error]:', error);
         return establishment.vibe_tags || [];
@@ -92,8 +112,8 @@ export async function parseNaturalLanguageContext(input: string, base: SessionCo
         const content = response.choices[0]?.message?.content;
         if (!content) return {};
 
-        const updates = JSON.parse(content) as Partial<SessionContext>;
-        return updates;
+        const updates = extractJSON(content);
+        return updates || {};
     } catch (error) {
         console.error('[NIM parseNaturalLanguageContext Error]:', error);
         return {};

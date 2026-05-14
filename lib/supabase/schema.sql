@@ -60,6 +60,7 @@ CREATE TABLE IF NOT EXISTS establishments (
   opens_at        TEXT,
   closes_at       TEXT,
   photo_url       TEXT,
+  description     TEXT,                   -- Added for community context
   vibe_tags       TEXT[] DEFAULT '{}',
   is_community_pin BOOLEAN DEFAULT FALSE,
   is_deal         BOOLEAN DEFAULT FALSE,
@@ -69,15 +70,26 @@ CREATE TABLE IF NOT EXISTS establishments (
   created_at      TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Community pins (shallow — UI only, fake submit)
+-- Community pins (comprehensive submission)
 CREATE TABLE IF NOT EXISTS community_pins (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   place_name    TEXT NOT NULL,
+  category      TEXT,
+  address       TEXT,
+  city          TEXT,
   lat           FLOAT,
   lng           FLOAT,
   photo_url     TEXT,
   description   TEXT,
   vibe_tags     TEXT[] DEFAULT '{}',
+  
+  -- MSME / Business fields
+  is_msme       BOOLEAN DEFAULT FALSE,
+  hours_open    TEXT,
+  hours_close   TEXT,
+  budget_tier   INT,      -- 1: Tipid, 2: Mid, 3: Bahala Na
+  deal_text     TEXT,
+  
   status        TEXT DEFAULT 'pending',   -- 'pending' | 'approved' | 'rejected'
   created_at    TIMESTAMPTZ DEFAULT NOW()
 );
